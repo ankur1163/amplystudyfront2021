@@ -1,0 +1,37 @@
+
+body{
+    margin: 0;
+    padding: 0;
+}
+.amply-wrapper {
+    max-width: 100%;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    margin-right: auto;
+    margin-left: auto;
+}
+@media (min-width: 576px) {
+	.amply-wrapper {
+		max-width: 540px;
+	}
+}
+@media (min-width: 768px) {
+	.amply-wrapper {
+		max-width: 720px;
+	}
+}
+@media (min-width: 992px) {
+	.amply-wrapper {
+		max-width: 968px;
+	}
+}
+@media (min-width: 1200px) {
+	.amply-wrapper {
+		max-width: 1140px;
+	}
+}
+@media (min-width: 1366px) {
+	.amply-wrapper {
+		max-width: 1306px;
+	}
+}
