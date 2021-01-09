@@ -43,6 +43,10 @@ const useStyles = makeStyles((theme) => ({
 	sectionContainer: {
 		padding: '1rem 0',
 	},
+	footer: {
+		height:'10vh',
+		backgroundColor:"blue",
+	}
 }));
 
 function Homepage() {
@@ -775,6 +779,7 @@ the art of working from home. I am here to guide you on how to make money online
 					</Typography>
 					</AccordionDetails>
 				</Accordion>
+			
 
 				
 				

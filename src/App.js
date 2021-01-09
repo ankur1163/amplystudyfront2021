@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Homepage from './pages/Homepage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Footer from './components/ui/Footer';
 import './App.css';
 
 function App() {
@@ -19,6 +20,8 @@ function App() {
 						<Route exact path="/Register" component={Register}></Route>
 					</Switch>
 				</main>
+				<Header/>
+				
 			</BrowserRouter>
 		</ThemeProvider>
 	);
