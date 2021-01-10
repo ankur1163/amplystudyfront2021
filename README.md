@@ -1,3 +1,275 @@
+
+import React, {createContext,useState,useContext} from "react";
+import {useHistory,Route,Redirect} from 'react-router-dom';
+
+
+export const authContext = createContext(null);
+
+export function AuthProvider({children}){
+    const [isUserSignedIn,setIsUserSignedIn] = useState(!!localStorage.getItem("user token"))
+    const history = useHistory();
+    const signout = ()=>{
+        localStorage.removeItem("user_token");
+        setIsUserSignedIn(false);
+        history.push("/signin")
+    }
+    return <authContext.Provider value= {{
+        isUserSignedIn,
+        setIsUserSignedIn,
+        signout,
+    }}>
+        {children}
+    </authContext.Provider>
+}
+
+export function ProtectedRoute({children, props}){
+    const context = useContext(authContext);
+    return <Route {...props}>
+        {context?.isUserSignedIn ?children :<Redirect to="/signin"></Redirect>}
+    </Route>
+}
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+import { Button } from '@material-ui/core';
+import React,{useContext} from 'react';
+import {Formik} from "formik";
+import * as Yup from "yup";
+import {Typography} from "@material-ui/core";
+import {TextField} from "@material-ui/core";
+
+import gql from 'graphql-tag';
+import { useMutation } from '@apollo/client';
+import { useHistory } from "react-router-dom";
+import { authContext } from '../auth/AuthContext';
+
+const initialValues = {
+    email:"",
+    password:"",
+}
+
+const SIGNIN_MUTATION = gql`
+mutation Signin($email: String!,$password: String!) {
+    login(credentials: {email: $email, password: $password}) {
+        
+      accessToken
+      id
+    }
+  }
+  
+
+`;
+const validationSchema = Yup.object().shape({
+    email:Yup.string()
+    .email("it should be an email")
+    .required("this field is required"),
+    password:Yup.string().required("this field is required"),
+});
+
+export const Signin = (props)=>{
+    const context = useContext(authContext);
+    const [signin,{loading}]= useMutation(SIGNIN_MUTATION);
+    const history = useHistory();
+    const afterLogin = (data)=>{
+        console.log(data.login.accessToken); 
+        localStorage.setItem("user_token",data.login.accessToken);
+        context?.setIsUserSignedIn(true);
+        history.push(`/profile${data.login.id}`)
+    }
+    const signinHandler = (values)=> {
+        console.log("values for sign in",values)
+        signin({variables:values}).then(({errors,data})=>{
+            console.log("data is ", data)
+            return errors ? console.log(errors) : afterLogin(data)
+        })
+    }
+    return (
+        <div>
+            <Typography variant="h6">
+                Sign in
+            </Typography>
+            <Formik initialValues={initialValues} onSubmit={signinHandler} validationSchema={validationSchema}>
+                {({
+                    values,
+                    touched,
+                    errors,
+                    isValid,
+                    handleChange,
+                    handleBlur,
+                    handleSubmit,
+                    isInitialValid,
+                    submitCount,
+                    isSubmitting
+                })=>(
+                    <form onSubmit={handleSubmit} >
+                          <TextField
+                        label="Email"
+                        name="email"
+                        value={values.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        fullWidth
+                        error={!!(errors && errors.email && touched.email)}
+                        helperText={
+                            errors && errors.email && touched.email
+                        }
+                        margin="normal"
+
+                        />
+                         <TextField
+                        label="Password"
+                        name="password"
+                        value={values.password}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        fullWidth
+                        error={!!(errors && errors.password && touched.password)}
+                        helperText={
+                            errors && errors.password && touched.password
+                        }
+                        margin="normal"
+
+                        />
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            type="submit"
+                            disabled={!isValid || !!isInitialValid}>
+                                Sign in 
+                            </Button>
+                    </form>
+                )
+
+                }
+            </Formik>
+
+        </div>
+    )
+}
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+import React from 'react';
+
+import {Formik} from "formik";
+import * as Yup from "yup";
+import {Typography} from "@material-ui/core";
+import {TextField} from "@material-ui/core";
+import {Button} from "@material-ui/core";
+import gql from 'graphql-tag';
+import { useMutation } from '@apollo/client';
+import { useHistory } from "react-router-dom";
+
+const initialValues = {
+    displayName:"",
+    email:"",
+    password:""
+}
+const SIGN_UP_MUTATION = gql`
+mutation Signup($email:String!,$password:String!,$displayName: String!) {
+    create_user(credentials: {email: $email, password: $password, displayName: $displayName}) {
+      displayName
+      email
+      id
+    }
+  }
+  
+
+
+`;
+
+const validationSchema = Yup.object().shape({
+    displayName: Yup.string().required("this field is required"),
+    email:Yup.string().email("it should be an email").required("please fill email id"),
+    password: Yup.string().required("this field is required"),
+})
+export const SignUp = (props)=>{
+    const [signup, {loading}] = useMutation(SIGN_UP_MUTATION)
+    let history = useHistory();
+    const signupHandler = (values)=>{
+        console.log("values from form",values)
+        signup({
+            variables:values
+        }).then(({error})=>{
+            if(error){
+                console.log(error)
+            }
+            else {
+                history.push("/signin")
+            }
+        }).catch(console.error)
+    }
+    return (
+        <div>
+            <Typography varaint="h6">Sign up</Typography>
+            <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={signupHandler}
+                >
+                {({
+                     values,
+                     touched,
+                     errors,
+                     isValid,
+                     handleChange,
+                     handleBlur,
+                     handleSubmit,
+                     isInitialValid,
+
+                }
+                   
+                )=><form onSubmit={(e)=> {e.preventDefault(); handleSubmit();signupHandler();}}>
+                        <TextField
+                        label="Display Name"
+                        name="displayName"
+                        value={values.displayName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        fullWidth
+                        error={!!(errors && errors.displayName && touched.displayName)}
+                        helperText={
+                            errors && errors.displayName && touched.displayName
+                        }
+                        margin="normal"
+
+                        />
+                        <TextField
+                        label="Email"
+                        name="email"
+                        value={values.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        fullWidth
+                        error={!!(errors && errors.email && touched.email)}
+                        helperText={
+                            errors && errors.email && touched.email
+                        }
+                        margin="normal"
+
+                        />
+                          <TextField
+                        label="Password"
+                        name="password"
+                        value={values.password}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        fullWidth
+                        error={!!(errors && errors.password && touched.password)}
+                        helperText={
+                            errors && errors.password && touched.password
+                        }
+                        margin="normal"
+
+                        />
+                        <Button variant="contained"  fullWidth type="submit" disabled={!isValid || !!isInitialValid }>
+                            Sign up
+                        </Button>
+                                            
+                                           
+
+                    </form>}
+                </Formik>
+        </div>
+    )
+}
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
