@@ -32,12 +32,11 @@ function App() {
 						<Route exact path="/dashboard" component={Dashboard}></Route>
 					</Switch>
 				</main>
-				<Header/>
-
-
-					</ApolloProvider>
+				 </ApolloProvider>
 				 </AuthProvider>
-				</BrowserRouter>
+				
+				<Footer />
+			</BrowserRouter>
 		</ThemeProvider>
 	);
 }
