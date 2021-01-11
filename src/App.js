@@ -9,6 +9,7 @@ import Footer from './components/ui/Footer';
 import './App.css';
 import {AuthProvider} from './auth/AuthContext';
 import {ApolloClient,ApolloProvider,InMemoryCache} from '@apollo/client';
+import StudentDashboard from './pages/StudentDashboard';
 
 
 const client = new ApolloClient({
@@ -28,6 +29,7 @@ function App() {
 						<Route exact path="/" component={Homepage}></Route>
 						<Route exact path="/Login" component={Login}></Route>
 						<Route exact path="/Register" component={Register}></Route>
+						<Route exact path="/dashboard" component={Dashboard}></Route>
 					</Switch>
 				</main>
 				<Header/>
