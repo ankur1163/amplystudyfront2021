@@ -7,12 +7,22 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Footer from './components/ui/Footer';
 import './App.css';
+import {AuthProvider} from './auth/AuthContext';
+import {ApolloClient,ApolloProvider,InMemoryCache} from '@apollo/client';
+
+
+const client = new ApolloClient({
+	uri: 'https://true-toucan-36.hasura.app/v1/graphql',
+  cache: new InMemoryCache()
+})
 
 function App() {
 	return (
 		<ThemeProvider theme={theme}>
 			<BrowserRouter>
-				<Header />
+				<AuthProvider>
+					<ApolloProvider client={client}>
+					<Header />
 				<main className="amply-wrapper">
 					<Switch>
 						<Route exact path="/" component={Homepage}></Route>
@@ -21,8 +31,11 @@ function App() {
 					</Switch>
 				</main>
 				<Header/>
-				
-			</BrowserRouter>
+
+
+					</ApolloProvider>
+				 </AuthProvider>
+				</BrowserRouter>
 		</ThemeProvider>
 	);
 }
