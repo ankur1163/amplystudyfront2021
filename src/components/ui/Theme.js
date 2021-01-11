@@ -29,36 +29,48 @@ export default createMuiTheme({
 		fontWeightBold: 700,
 		h1: {
 			fontFamily: '"Roboto", sans-serif',
-			fontWeight: 300,
+			fontWeight: 500,
 			letterSpacing: 0,
 			fontSize: pxToRem(50),
 			[breakpoints.down('sm')]: {
 				fontSize: pxToRem(30),
 			},
+			[breakpoints.down('xs')]: {
+				fontSize: pxToRem(28),
+			},
 		},
 		h2: {
 			fontFamily: '"Roboto", sans-serif',
-			fontWeight: 300,
+			fontWeight: 500,
 			letterSpacing: 0,
-			fontSize: pxToRem(46),
+			fontSize: pxToRem(48),
+			[breakpoints.down('sm')]: {
+				fontSize: pxToRem(30),
+			},
 			[breakpoints.down('xs')]: {
-				fontSize: pxToRem(22),
+				fontSize: pxToRem(26),
 			},
 		},
 		h3: {
 			fontFamily: '"Roboto", sans-serif',
-			fontWeight: 400,
+			fontWeight: 500,
 			letterSpacing: 0,
-			fontSize: pxToRem(34),
+			fontSize: pxToRem(38),
+			[breakpoints.down('sm')]: {
+				fontSize: pxToRem(28),
+			},
 			[breakpoints.down('xs')]: {
-				fontSize: pxToRem(30),
+				fontSize: pxToRem(24),
 			},
 		},
 		h4: {
 			fontFamily: '"Roboto", sans-serif',
 			fontWeight: 400,
 			letterSpacing: 0,
-			fontSize: pxToRem(30),
+			fontSize: pxToRem(28),
+			[breakpoints.down('sm')]: {
+				fontSize: pxToRem(26),
+			},
 			[breakpoints.down('xs')]: {
 				fontSize: pxToRem(22),
 			},
@@ -67,18 +79,24 @@ export default createMuiTheme({
 			fontFamily: '"Roboto", sans-serif',
 			fontWeight: 400,
 			letterSpacing: 0,
-			fontSize: pxToRem(25),
-			[breakpoints.down('xs')]: {
+			fontSize: pxToRem(24),
+			[breakpoints.down('sm')]: {
 				fontSize: pxToRem(22),
+			},
+			[breakpoints.down('xs')]: {
+				fontSize: pxToRem(18),
 			},
 		},
 		h6: {
 			fontFamily: '"Roboto", sans-serif',
-			fontWeight: 500,
+			fontWeight: 400,
 			letterSpacing: 0,
 			fontSize: pxToRem(22),
+			[breakpoints.down('sm')]: {
+				fontSize: pxToRem(18),
+			},
 			[breakpoints.down('xs')]: {
-				fontSize: pxToRem(17),
+				fontSize: pxToRem(16),
 			},
 		},
 		subtitle1: {
@@ -86,8 +104,11 @@ export default createMuiTheme({
 			fontWeight: 400,
 			letterSpacing: 0,
 			fontSize: pxToRem(20),
+			[breakpoints.down('sm')]: {
+				fontSize: pxToRem(18),
+			},
 			[breakpoints.down('xs')]: {
-				fontSize: pxToRem(12),
+				fontSize: pxToRem(16),
 			},
 		},
 		subtitle2: {
@@ -95,26 +116,35 @@ export default createMuiTheme({
 			fontWeight: 500,
 			letterSpacing: 0,
 			fontSize: pxToRem(18),
+			[breakpoints.down('sm')]: {
+				fontSize: pxToRem(16),
+			},
 			[breakpoints.down('xs')]: {
-				fontSize: pxToRem(18),
+				fontSize: pxToRem(14),
 			},
 		},
 		body1: {
 			fontFamily: '"Roboto", sans-serif',
 			fontWeight: 400,
 			letterSpacing: 0,
-			fontSize: pxToRem(17),
+			fontSize: pxToRem(20),
+			[breakpoints.down('sm')]: {
+				fontSize: pxToRem(18),
+			},
 			[breakpoints.down('xs')]: {
-				fontSize: pxToRem(15),
+				fontSize: pxToRem(16),
 			},
 		},
 		body2: {
 			fontFamily: '"Roboto", sans-serif',
 			fontWeight: 400,
 			letterSpacing: 0,
-			fontSize: pxToRem(16),
+			fontSize: pxToRem(18),
+			[breakpoints.down('sm')]: {
+				fontSize: pxToRem(16),
+			},
 			[breakpoints.down('xs')]: {
-				fontSize: pxToRem(13),
+				fontSize: pxToRem(14),
 			},
 		},
 		button: {

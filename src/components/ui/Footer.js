@@ -1,9 +1,6 @@
 import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
 import { Link } from 'react-router-dom';
+import { Box, Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -22,22 +19,10 @@ const useStyles = makeStyles((theme) => ({
 export default function Footer(props) {
 	const classes = useStyles();
 	return (
-		<AppBar>
-			<Toolbar>
-				<Grid container direction="row" justify="flex-end" alignItems="center">
-					<Grid item>
-						<Link className={classes.menuButton} to="/Login">
-							LOGIN
-						</Link>
-					</Grid>
-
-					<Grid item>
-						<Link className={classes.menuButton} to="/Register">
-							REGISTER
-						</Link>
-					</Grid>
-				</Grid>
-			</Toolbar>
-		</AppBar>
+		<footer>
+			<Box mt={3} mb={4} align="center">
+				<Typography variant="h2">Footer</Typography>
+			</Box>
+		</footer>
 	);
 }

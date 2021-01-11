@@ -20,8 +20,7 @@ function App() {
 						<Route exact path="/Register" component={Register}></Route>
 					</Switch>
 				</main>
-				<Header/>
-				
+				<Footer />
 			</BrowserRouter>
 		</ThemeProvider>
 	);
