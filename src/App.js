@@ -29,7 +29,7 @@ function App() {
 						<Route exact path="/" component={Homepage}></Route>
 						<Route exact path="/Login" component={Login}></Route>
 						<Route exact path="/Register" component={Register}></Route>
-						<Route exact path="/dashboard" component={Dashboard}></Route>
+						<Route exact path="/studentdashboard" component={StudentDashboard}></Route>
 					</Switch>
 				</main>
 				 </ApolloProvider>
