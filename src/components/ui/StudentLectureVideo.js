@@ -16,13 +16,17 @@ const useStyles = makeStyles((theme)=> ({
 
 
 function StudentLectureVideo  (props){
-
+    console.log("props is",props.currentLectureDetails)
+    const lectureTitle = props.currentLectureDetails[0].lectureTitle;
+    const url = props.currentLectureDetails[0].videoUrl;
+    const text = props.currentLectureDetails[0].text;
+    console.log("everything",lectureTitle,url,text)
     const classes = useStyles();
     
-  useEffect((props)=>{
-      console.log(props)
-      console.log("id is",props?.currentLectureDetails.id)
-  })
+//   useEffect(()=>{
+      
+//       console.log("id is",currentLectureDetails?.currentLectureDetails?.id)
+//   },[currentLectureDetails])
    
 
    return (
@@ -30,7 +34,13 @@ function StudentLectureVideo  (props){
       <Grid direction="column" container justify="center" >
           <Grid className= { classes.lecturevideoMT} item>
               <Typography variant="h1">
-                  Lecture 1 - what, where and how of virtual assistant world.
+                  {lectureTitle}
+              </Typography>
+              <Typography variant="h1">
+                  {url}
+              </Typography>
+              <Typography variant="h1">
+                  {text}
               </Typography>
           </Grid>
           <Grid item>
