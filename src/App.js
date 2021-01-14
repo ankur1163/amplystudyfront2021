@@ -25,7 +25,7 @@ const authLink = setContext(({operationName},prevCtx)=>{
 		const token = localStorage.getItem("user_token")
 
 		return {
-			header:{
+			headers:{
 				...prevCtx.header,
 				Authorization: `Bearer ${token}`
 			}
