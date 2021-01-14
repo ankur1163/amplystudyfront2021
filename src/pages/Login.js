@@ -45,10 +45,15 @@ function Login  (props){
     }
     const signinHandler = (values)=> {
         console.log("values for sign in",values)
-        signin({variables:values}).then(({errors,data})=>{
-            console.log("data is ", data)
-            return errors ? console.log(errors) : afterLogin(data)
-        })
+
+        
+            signin({variables:values}).then(({errors,data})=>{
+                console.log("data is ", data)
+                return errors ? console.log(errors) : afterLogin(data)
+            })
+
+        
+       
     }
     return (
       <Grid container spacing={10} align="center" style={{marginTop:"80px"}} direction="column">

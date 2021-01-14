@@ -13,6 +13,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import InstructorDashboard from './pages/InstructorDashboard';
 import {setContext} from "@apollo/client/link/context";
 
+
 const httpLink = createHttpLink({
 	uri: 'https://true-toucan-36.hasura.app/v1/graphql',
 
@@ -33,9 +34,14 @@ const authLink = setContext(({operationName},prevCtx)=>{
 	
 })
 
+
+
+
 const client = new ApolloClient({
+	
   cache: new InMemoryCache(),
   link: authLink.concat(httpLink)
+  
 })
 
 function App() {
