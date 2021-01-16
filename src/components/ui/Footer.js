@@ -4,6 +4,11 @@ import { Box, Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
+	footer: {
+		position: 'absolute',
+		width: '100%',
+		bottom: 0,
+	},
 	menuButton: {
 		color: 'white',
 		textDecoration: 'none',
@@ -19,9 +24,9 @@ const useStyles = makeStyles((theme) => ({
 export default function Footer(props) {
 	const classes = useStyles();
 	return (
-		<footer>
-			<Box mt={3} mb={4} align="center">
-				<Typography variant="h2">Footer</Typography>
+		<footer className={classes.footer}>
+			<Box pt={2} pb={2} align="center">
+				<Typography variant="h4">Footer</Typography>
 			</Box>
 		</footer>
 	);

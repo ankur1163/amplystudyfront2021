@@ -26,13 +26,13 @@ export default function Header(props) {
 			<Toolbar>
 				<Grid container direction="row" justify="flex-end" alignItems="center">
 					<Grid item>
-						<Link className={classes.menuButton} to="/Login">
+						<Link className={classes.menuButton} to="login">
 							LOGIN
 						</Link>
 					</Grid>
 
 					<Grid item>
-						<Link className={classes.menuButton} to="/Register">
+						<Link className={classes.menuButton} to="/register">
 							REGISTER
 						</Link>
 					</Grid>
