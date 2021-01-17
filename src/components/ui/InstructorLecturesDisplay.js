@@ -1,34 +1,17 @@
 import React, { useEffect } from 'react';
-import {Grid,Typography} from '@material-ui/core';
-import { gql, useQuery } from '@apollo/client';
+import { Grid, Typography } from '@material-ui/core';
 
-
-const getLectures = gql`
-
-query MyQuery {
-    lectures {
-      title
-      videoUrl
-      description
-      id
-      paid
-      snumber
-      type
-    }
-  }
-`
 
 
 
 function InstructorLecturesDisplay(props) {
 
-    const { loading, error, data } = useQuery(getLectures);
   
-    if (loading) return 'Loading...';
-    if(data) return console.log(data)
-    if (error) return `Error! ${error.message}`;
 
-	return (
+  
+   
+    
+    return (
         <>
             <Grid container direction="column">
                 <Grid item>
@@ -37,15 +20,11 @@ function InstructorLecturesDisplay(props) {
                     </Typography>
                 </Grid>
             </Grid>
-
-
-
         </>
-       
-  );
+    );
 }
-		
-	
+
+
 
 
 export default InstructorLecturesDisplay;

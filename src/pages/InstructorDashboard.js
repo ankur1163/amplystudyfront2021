@@ -19,6 +19,24 @@ import InstructorLecturesDisplay from '../components/ui/InstructorLecturesDispla
 
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
+import { gql, useQuery } from '@apollo/client';
+
+
+const getLectures = gql`
+
+query MyQuery {
+    lectures {
+      title
+      videoUrl
+      description
+      id
+      paid
+      snumber
+      type
+    }
+  }
+`
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -56,30 +74,43 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function InstructorDashboard(props) {
+  const { window } = props;
+  const classes = useStyles();
+  const theme = useTheme();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
-    const { window } = props;
-    const classes = useStyles();
-    const theme = useTheme();
-    const [mobileOpen, setMobileOpen] = React.useState(false);
-  
-    const handleDrawerToggle = () => {
-      setMobileOpen(!mobileOpen);
-    };
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+  const { loading, error, data } = useQuery(getLectures);
+
+  if (loading) return 'Loading...';
+    
+  if (error) return `Error! ${error.message}`;
+  console.log("data is",data)
+
+//   <ListItem button key="lecturessidebar">
+            
+//   <ListItemIcon><InboxIcon /></ListItemIcon>
+//   <ListItemText primary="Lectures" />
+// </ListItem>
+// <ListItem button key="reportssidebar">
+//   <ListItemIcon><InboxIcon /></ListItemIcon>
+//   <ListItemText primary="Reports" />
+// </ListItem>
   
     const drawer = (
       <div>
         <div className={classes.toolbar} />
         <Divider />
         <List>
-        <ListItem button key="lecturessidebar">
-            
-              <ListItemIcon><InboxIcon /></ListItemIcon>
-              <ListItemText primary="Lectures" />
-            </ListItem>
-            <ListItem button key="reportssidebar">
-              <ListItemIcon><InboxIcon /></ListItemIcon>
-              <ListItemText primary="Reports" />
-            </ListItem>
+        {data.lectures.map((text, index) => (
+          <ListItem button key={text.title}>
+            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+            <ListItemText primary={text.title} />
+          </ListItem>
+        ))}
+       
           
         </List>
        
@@ -109,6 +140,7 @@ function InstructorDashboard(props) {
       <nav className={classes.drawer} aria-label="mailbox folders">
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden smUp implementation="css">
+          
           <Drawer
             container={container}
             variant="temporary"
