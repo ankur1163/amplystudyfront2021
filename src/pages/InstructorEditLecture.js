@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react';
+import React,{useEffect,useState} from 'react';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
 import { Divider, Grid, Typography } from '@material-ui/core';
@@ -20,15 +20,25 @@ query MyQuery {
   }
 `
 
-const SortableItem = SortableElement(({ value }) => <li>{value}</li>)
+
+
+
+
+export default function InstructorEditLecture(props) {
+
+    const [items, setItems] = useState([]);
+    const { loading, error, data } = useQuery(getLectures);
+  
+    console.log("use effect",data)
+    const SortableItem = SortableElement(({ value }) => <li >{value}</li>)
 
 const SortableList = SortableContainer(({ items }) => {
-    console.log("items are",items)
+    console.log("items in sortable container",items)
     return (
         <ul >
             {
                 items.map((value, index) => (
-                    <div style={{ color: "red", height: "30px", backgroundColor: "#f9f9f9" }}>
+                    <div  style={{  height: "60px" }}>
                         <SortableItem key={`item-${value.snumber}`} index={index} value={value.title} />
                         <Divider />
 
@@ -41,49 +51,59 @@ const SortableList = SortableContainer(({ items }) => {
 
     )
 })
+useEffect(() => {
+    // check if data exists or data isn't empty
+    if(data) {
+        setItems(data.lectures);
+    }
 
-let items = [];
-
-export default function InstructorEditLecture(props) {
-
-    console.log("use effect")
-    const { loading, error, data } = useQuery(getLectures);
-
-    
-    if (loading) return 'Loading...';
+}, [data]);
+    if (loading){
+        console.log("loading")
+        return 'Loading...';
+    } 
     if (error) return `Error! ${error.message}`;
-
+    
     const onSortEnd = ({ oldIndex, newIndex }) => {
-        console.log("on sort end")
-        this.setState(({ items }) => ({
-            items: arrayMove(items, oldIndex, newIndex),
-        }));
+        console.log("on sort end",oldIndex,newIndex)
+         setItems(arrayMove(items, oldIndex, newIndex));
+        
     };
+   
 
-    if(data){
-
-    items = data?.lectures;
+    console.log("loading is",loading)
+    console.log("error is",error)
+    console.log("data is",data)
+    console.log("items now",items)
+   
         
     return (
-        <Grid style={{ marginTop: "80px" }} container direction="row">
+        <>
+         {loading && (<h1> loading...</h1>)}
+         { data ? (<Grid style={{ marginTop: "80px" }} container direction="row">
             <Grid item sm={4}>
-                <SortableList items={items} onSortEnd={onSortEnd} />
+                <SortableList items={items } onSortEnd={onSortEnd} />
 
             </Grid>
             <Grid item>
                 <h1>cool</h1>
-                <Typography variant="h3"> {data?.lectures[0]?.title}</Typography>
+                
                 <Typography variant="h3"> this is great</Typography>
                 <Typography variant="h3"> this is great</Typography>
             </Grid>
-        </Grid>
+        </Grid>): null}
+               
+
+
+        </>
+        
 
 
 
 
     )
 
-    }
+    
 
 
 
