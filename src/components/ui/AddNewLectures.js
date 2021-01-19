@@ -56,12 +56,12 @@ export default function AddNewLectures(props) {
     const [addNewLecture, setaddNewLecture] = useState(true);
    const [addLecturegraphql, {loading}] = useMutation(ADD_LECTURE)
     
-   const addlectureHandler=(values)=>{
+   const addlectureHandler=(values, {resetForm})=>{
     console.log("add lecture handler",values);
     const newValues = parseInt(values.snumber)
     values.snumber = newValues;
     addLecturegraphql({variables:values}).then(({errors,data})=> {
-        return errors ? console.log("errors are ",errors) : console.log("data is ",data)
+        return errors ? console.log("errors are ",errors)  :  (console.log("data is",data),resetForm())
     })
     
 }
@@ -125,7 +125,7 @@ export default function AddNewLectures(props) {
                       <TextField
                         label="videourl"
                         name="videoUrl"
-                        value={values.password}
+                        value={values.videoUrl}
                         onChange={handleChange}
                         onBlur={handleBlur}
                        
@@ -189,8 +189,8 @@ export default function AddNewLectures(props) {
                             
                             variant="contained"
                             color="secondary"
-                            type="submit"
-                            disabled={!isValid || !!isInitialValid}>
+                            onClick= {()=>setaddNewLecture(true)}
+                            >
                                 Cancel
                             </Button>
                             <Button
