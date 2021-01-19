@@ -1,5 +1,5 @@
-
-import React,{useState,setState} from 'react';
+import React from 'react';
+import {Grid,Typography} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -10,20 +10,39 @@ import IconButton from '@material-ui/core/IconButton';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MailIcon from '@material-ui/icons/Mail';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+import InstructorLecturesDisplay from '../components/ui/InstructorLecturesDisplay';
+
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-import StudentLectureVideo from '../components/ui/StudentLectureVideo';
+
+import { gql, useQuery } from '@apollo/client';
+
+
+const getLectures = gql`
+
+query MyQuery {
+    lectures {
+      title
+      videoUrl
+      description
+      id
+      paid
+      snumber
+      type
+    }
+  }
+`
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
+    marginTop:"100px",
   },
   drawer: {
     [theme.breakpoints.up('sm')]: {
@@ -53,90 +72,54 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(3),
   },
 }));
- 
-function StudentDashboard  (props){
 
+function InstructorDashboard(props) {
   const { window } = props;
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const allLectures = [ {
-    id:"1",
-    videoUrl:"url1",
-    lectureTitle:"lecture 1 - whats where and how",
-    text:'This is lecture1 and this',
-    type:"lecture",
-    doneStatus:false
 
-  },
-  {
-    id:"2",
-    videoUrl:'url2',
-    lectureTitle:'lecture 2 - get going',
-    text:'get going for rock show',
-    type:"lecture",
-    doneStatus:false
-
-  },
-  {
-    id:"3",
-    videoUrl:'url3',
-    lectureTitle:'lecture 3 - mobile kites ',
-    text:'kites and mobiles',
-    type:"lecture",
-    doneStatus:false
-
-  }
-
-  ]
-  let initialLecture = {
-    videoUrl:null,
-    lectureTitle:null,
-    text:null,
-    type:"lecture",
-    doneStatus:false
-   }
-  const [currentLectureDetails,setCurrentLectureDetails] = useState(initialLecture)
-  
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  const Buttonpressed = (id)=> {
-    console.log(id,"id")
-    const clickedLectureObject = allLectures.filter((item)=> item.id===id);
-    console.log("clickedLectureObject",clickedLectureObject);
-    initialLecture= clickedLectureObject;
-    setCurrentLectureDetails(initialLecture)
-    console.log(currentLectureDetails,"currentlecturedetail")
+  const { loading, error, data } = useQuery(getLectures);
 
-  }
+  if (loading) return 'Loading...';
+    
+  if (error) return `Error! ${error.message}`;
+  console.log("data is",data)
 
-  const drawer = (
-    <div>
-      <div className={classes.toolbar} />
-      <Divider />
-      <List>
-        {allLectures.map((text, index) => (
-          <>
-          <ListItem button onClick={()=>Buttonpressed(text.id)} key={text.id}>
-            <ListItemText primary={text.lectureTitle} />
+//   <ListItem button key="lecturessidebar">
             
+//   <ListItemIcon><InboxIcon /></ListItemIcon>
+//   <ListItemText primary="Lectures" />
+// </ListItem>
+// <ListItem button key="reportssidebar">
+//   <ListItemIcon><InboxIcon /></ListItemIcon>
+//   <ListItemText primary="Reports" />
+// </ListItem>
+  
+    const drawer = (
+      <div>
+        <div className={classes.toolbar} />
+        <Divider />
+        <List>
+        {data.lectures.map((text, index) => (
+          <ListItem button key={text.title}>
+            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+            <ListItemText primary={text.title} />
           </ListItem>
-          <Divider />
-          </>
-          
         ))}
-      </List>
-      
-      
-    </div>
-  );
-
-  const container = window !== undefined ? () => window().document.body : undefined;
-
-   return (
-    <>
-      <div className={classes.root}>
+       
+          
+        </List>
+       
+      </div>
+    );
+  
+    const container = window !== undefined ? () => window().document.body : undefined;
+	return (
+        <div className={classes.root}>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
@@ -157,6 +140,7 @@ function StudentDashboard  (props){
       <nav className={classes.drawer} aria-label="mailbox folders">
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden smUp implementation="css">
+          
           <Drawer
             container={container}
             variant="temporary"
@@ -187,15 +171,13 @@ function StudentDashboard  (props){
       </nav>
       <main className={classes.content}>
         <div className={classes.toolbar} />
-          <StudentLectureVideo currentLectureDetails={currentLectureDetails}/>
+            <InstructorLecturesDisplay/>
       </main>
     </div>
-  </>
-
-            
-
-        
-    )
+  );
 }
+		
+	
 
-export default StudentDashboard;
+
+export default InstructorDashboard;

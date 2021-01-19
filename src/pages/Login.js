@@ -26,10 +26,12 @@ const validationSchema = Yup.object().shape({
 	password: Yup.string().required('This field is required'),
 });
 
+
 function Login(props) {
 	const context = useContext(authContext);
 	const [signin, { loading }] = useMutation(SIGNIN_MUTATION);
 	const history = useHistory();
+
 
 	const afterLogin = (data) => {
 		console.log(data.login.accessToken);
