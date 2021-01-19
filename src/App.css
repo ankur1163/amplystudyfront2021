@@ -1,13 +1,19 @@
 
+html,
 body{
     margin: 0;
-    padding: 0;
+	padding: 0;
+}
+#root,
+main{
+	height: inherit;
 }
 .amply-wrapper {
     max-width: 100%;
     padding-right: 1rem;
     padding-left: 1rem;
-    margin-right: auto;
+	margin-right: auto;
+	margin-top: 64px;
     margin-left: auto;
 }
 @media (min-width: 576px) {
