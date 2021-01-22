@@ -18,6 +18,25 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import StudentLectureVideo from '../components/ui/StudentLectureVideo';
+import {gql,useQuery} from '@apollo/client';
+
+const getLectures = gql`
+
+query MyQuery{
+  lectures {
+    title
+    videoUrl
+    description
+    id
+    paid
+    snumber
+    type
+  }
+}
+`
+
+
+
 
 const drawerWidth = 240;
 
@@ -56,54 +75,37 @@ const useStyles = makeStyles((theme) => ({
  
 function StudentDashboard  (props){
 
+  let initialLecture = [{
+    title : "No video is selected",
+    videoUrl:null,
+    description:null,
+    id:null,
+    paid:true,
+    snumber:1,
+    type:"lecture",
+
+  }]
   const { window } = props;
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const allLectures = [ {
-    id:"1",
-    videoUrl:"url1",
-    lectureTitle:"lecture 1 - whats where and how",
-    text:'This is lecture1 and this',
-    type:"lecture",
-    doneStatus:false
-
-  },
-  {
-    id:"2",
-    videoUrl:'url2',
-    lectureTitle:'lecture 2 - get going',
-    text:'get going for rock show',
-    type:"lecture",
-    doneStatus:false
-
-  },
-  {
-    id:"3",
-    videoUrl:'url3',
-    lectureTitle:'lecture 3 - mobile kites ',
-    text:'kites and mobiles',
-    type:"lecture",
-    doneStatus:false
-
-  }
-
-  ]
-  let initialLecture = {
-    videoUrl:null,
-    lectureTitle:null,
-    text:null,
-    type:"lecture",
-    doneStatus:false
-   }
   const [currentLectureDetails,setCurrentLectureDetails] = useState(initialLecture)
+
+  const { loading, error, data } = useQuery(getLectures);
+
+  
+  if (loading) return 'loading...';
+
+  if (error) return `Error is ${error.message}`;
+ console.log("data is" ,data)
+  
   
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
   const Buttonpressed = (id)=> {
     console.log(id,"id")
-    const clickedLectureObject = allLectures.filter((item)=> item.id===id);
+    const clickedLectureObject = data.lectures.filter((item)=> item.id===id);
     console.log("clickedLectureObject",clickedLectureObject);
     initialLecture= clickedLectureObject;
     setCurrentLectureDetails(initialLecture)
@@ -116,10 +118,11 @@ function StudentDashboard  (props){
       <div className={classes.toolbar} />
       <Divider />
       <List>
-        {allLectures.map((text, index) => (
+        {data.lectures.map((text, index) => (
           <>
+          
           <ListItem button onClick={()=>Buttonpressed(text.id)} key={text.id}>
-            <ListItemText primary={text.lectureTitle} />
+            <ListItemText primary={text.title} />
             
           </ListItem>
           <Divider />
