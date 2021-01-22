@@ -16,17 +16,13 @@ const useStyles = makeStyles((theme)=> ({
 
 
 function StudentLectureVideo  (props){
-    console.log("props is",props.currentLectureDetails)
-    const lectureTitle = props.currentLectureDetails[0].lectureTitle;
-    const url = props.currentLectureDetails[0].videoUrl;
-    const text = props.currentLectureDetails[0].text;
+    console.log("props are",props.currentLectureDetails.lectureTitle)
+    const lectureTitle = props.currentLectureDetails.lectureTitle || null;
+    const url = props.currentLectureDetails.videoUrl;
+    const text = props.currentLectureDetails.text;
     console.log("everything",lectureTitle,url,text)
     const classes = useStyles();
-    
-//   useEffect(()=>{
-      
-//       console.log("id is",currentLectureDetails?.currentLectureDetails?.id)
-//   },[currentLectureDetails])
+
    
 
    return (

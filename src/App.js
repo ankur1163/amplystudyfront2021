@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@material-ui/styles';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+
 import Header from './components/ui/Header';
 import theme from './components/ui/Theme';
 import Footer from './components/ui/Footer';
@@ -8,7 +8,7 @@ import Homepage from './pages/Homepage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
-import Footer from './components/ui/Footer';
+
 import './App.css';
 import { AuthProvider } from './auth/AuthContext';
 import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
@@ -33,7 +33,7 @@ const authLink = setContext(({ operationName }, prevCtx) => {
 	};
 
 	if(token=== undefined || token === null || token=== "") {
-		console.log("token not found")
+		console.log("token not found",token)
 		return
 	}
 

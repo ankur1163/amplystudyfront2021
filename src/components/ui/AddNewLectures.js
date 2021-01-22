@@ -155,17 +155,24 @@ export default function AddNewLectures(props) {
                         </Grid>
                         <Grid item>
                         <FormControl component="fieldset">
-                        <FormLabel component="legend">Gender</FormLabel>
+                        <FormLabel component="legend">type</FormLabel>
                         <RadioGroup aria-label="type" name="type" value={values.type} onChange={handleChange}>
                             <FormControlLabel value="lecture" control={<Radio />} label="lecture" />
                             <FormControlLabel value="assignment" control={<Radio />} label="assignment" />
                             
                         </RadioGroup>
                         </FormControl>
-                        <div>Picked: {values.picked}</div>
+                       
                         </Grid>
                         <Grid item>
-                            paid
+                        <FormControl component="fieldset2">
+                        <FormLabel component="legend2">Paid</FormLabel>
+                        <RadioGroup aria-label="paid" name="paid" value={values.paid} onChange={handleChange}>
+                            <FormControlLabel value="true" control={<Radio />} label="true" />
+                            <FormControlLabel value="false" control={<Radio />} label="false" />
+                            
+                        </RadioGroup>
+                        </FormControl>
                         </Grid>
                         <Grid item>
                         <TextField
