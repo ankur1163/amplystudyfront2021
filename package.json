@@ -35,9 +35,12 @@
       "react-app/jest"
     ],
     "rules": {
-      "import/no-anonymous-default-export": ["error", {
-        "allowObject": true
-      }]
+      "import/no-anonymous-default-export": [
+        "error",
+        {
+          "allowObject": true
+        }
+      ]
     }
   },
   "browserslist": {

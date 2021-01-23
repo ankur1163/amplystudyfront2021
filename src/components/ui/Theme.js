@@ -7,7 +7,14 @@ const pxToRem = (px) => `${px / defaultHtmlFontSize}rem`;
 
 export default createMuiTheme({
 	palette: {
-		common: {},
+		common: {
+			black: '#0F172A',
+		},
+		text: {
+			primary: '#0F172A',
+			secondary: '#334155',
+			disabled: '#CBD5E1',
+		},
 	},
 	breakpoints: {
 		keys: ['xs', 'sm', 'md', 'lg', 'xl'],
@@ -127,10 +134,7 @@ export default createMuiTheme({
 			fontFamily: '"Roboto", sans-serif',
 			fontWeight: 400,
 			letterSpacing: 0,
-			fontSize: pxToRem(20),
-			[breakpoints.down('sm')]: {
-				fontSize: pxToRem(18),
-			},
+			fontSize: pxToRem(18),
 			[breakpoints.down('xs')]: {
 				fontSize: pxToRem(16),
 			},
@@ -139,10 +143,7 @@ export default createMuiTheme({
 			fontFamily: '"Roboto", sans-serif',
 			fontWeight: 400,
 			letterSpacing: 0,
-			fontSize: pxToRem(18),
-			[breakpoints.down('sm')]: {
-				fontSize: pxToRem(16),
-			},
+			fontSize: pxToRem(16),
 			[breakpoints.down('xs')]: {
 				fontSize: pxToRem(14),
 			},

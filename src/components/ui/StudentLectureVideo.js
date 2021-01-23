@@ -1,71 +1,40 @@
-
-import React,{useContext, useEffect} from 'react';
-import {Grid,Typography,Button} from '@material-ui/core'
+import React, { useContext, useEffect } from 'react';
+import { Box, Grid, Typography, Button } from '@material-ui/core';
 import ReactPlayer from 'react-player';
-import {makeStyles,useTheme} from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 
-
-const useStyles = makeStyles((theme)=> ({
-    lecturevideoMT:{
-        marginTop:"10px",
-    },
-
-}))
-   
-
-
-
-function StudentLectureVideo  (props){
-    console.log("props is",props.currentLectureDetails)
-    const lectureTitle = props.currentLectureDetails[0].lectureTitle;
-    const url = props.currentLectureDetails[0].videoUrl;
-    const text = props.currentLectureDetails[0].text;
-    console.log("everything",lectureTitle,url,text)
-    const classes = useStyles();
-    
-//   useEffect(()=>{
-      
-//       console.log("id is",currentLectureDetails?.currentLectureDetails?.id)
-//   },[currentLectureDetails])
-   
-
-   return (
-    <>
-      <Grid direction="column" container justify="center" >
-          <Grid className= { classes.lecturevideoMT} item>
-              <Typography variant="h1">
-                  {lectureTitle}
-              </Typography>
-              <Typography variant="h1">
-                  {url}
-              </Typography>
-              <Typography variant="h1">
-                  {text}
-              </Typography>
-          </Grid>
-          <Grid item>
-          <ReactPlayer
-						width="640px"
-						url="https://vimeo.com/451565367"
-						config={{ vimeo: { preload: true } }}
-						controls
-					/>
-          </Grid>
-          <Grid align="center" spacing={2} container item className={classes.lecturevideoMT}>
-              <Grid item>
-                <Button color="primary" variant="contained">Done</Button>
-
-              </Grid>
-              <Grid item>
-                <Button color="secondary" variant="contained">Next</Button>
-
-              </Grid>
-              
-              
-          </Grid>
-      </Grid>
-    </>
-        )
+function StudentLectureVideo({
+	doneStatus = false,
+	title = '',
+	description = '',
+	type = 'lecture',
+	videoUrl = 'a',
+}) {
+	return (
+		<>
+			<Box display="inline-block" my={2}>
+				<Typography variant="h3">{title}</Typography>
+				<Typography variant="h5" color="textSecondary">
+					{description}
+				</Typography>
+			</Box>
+			<Box display="block" my={2}>
+				<ReactPlayer url={videoUrl} config={{ vimeo: { preload: true } }} controls />
+			</Box>
+			<Box display="flex" justifyContent="flex-end">
+				<Box mx={1}>
+					<Button color="primary" variant="contained">
+						Done
+					</Button>
+				</Box>
+				<Box mx={1}>
+					<Button color="secondary" variant="contained">
+						Next
+					</Button>
+				</Box>
+			</Box>
+		</>
+	);
 }
 
 export default StudentLectureVideo;
