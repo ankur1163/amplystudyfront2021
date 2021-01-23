@@ -4,20 +4,32 @@ import { useHistory, Route, Redirect } from 'react-router-dom';
 export const authContext = createContext(null);
 
 export function AuthProvider({ children }) {
-	const [isUserSignedIn, setIsUserSignedIn] = useState(!!localStorage.getItem('user_token'));
+	const initialState = {
+		isUserLogged: Boolean(localStorage.getItem('user_token')),
+		userName: '',
+		userId: '',
+		userEmail: '',
+	};
+	const [userProfile, setUserProfile] = useState(() => initialState);
 	const history = useHistory();
-	const signout = () => {
+
+	const signOut = () => {
 		localStorage.removeItem('user_token');
-		setIsUserSignedIn(false);
-		history.push('/signin');
+		setUserProfile({
+			isUserLogged: false,
+			userName: '',
+			userId: '',
+			userEmail: '',
+		});
+		history.replace('/login');
 	};
 
 	return (
 		<authContext.Provider
 			value={{
-				isUserSignedIn,
-				setIsUserSignedIn,
-				signout,
+				userProfile,
+				setUserProfile,
+				signOut,
 			}}
 		>
 			{children}
@@ -27,9 +39,5 @@ export function AuthProvider({ children }) {
 
 export function ProtectedRoute({ children, props }) {
 	const context = useContext(authContext);
-	return (
-		<Route {...props}>
-			{context?.isUserSignedIn ? children : <Redirect to="/signin"></Redirect>}
-		</Route>
-	);
+	return <Route {...props}>{context?.isUserSignedIn ? children : <Redirect to="/signin" />}</Route>;
 }
