@@ -34,8 +34,9 @@ function Login(props) {
 
 
 	const afterLogin = (data) => {
-		console.log(data.login.accessToken);
+		console.log(data.login);
 		localStorage.setItem('user_token', data.login.accessToken);
+		localStorage.setItem('user_id',data.login.id);
 		context?.setIsUserSignedIn(true);
 		history.push(`/studentdashboard${data.login.id}`);
 	};
