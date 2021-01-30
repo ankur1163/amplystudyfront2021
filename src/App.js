@@ -76,6 +76,7 @@ function App() {
 								<Route exact path="/studentdashboard" component={StudentDashboard}></Route>
 								<Route exact path="/instructordashboard" component={InstructorDashboard}></Route>
 								<Route exact path='/instructoreditlecture' component={InstructorEditLecture}></Route>
+								<Route exact path='/paymentcompleted' component={()=><h1>payment completed</h1>}></Route>
 
 								
 								

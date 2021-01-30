@@ -19,6 +19,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import StudentLectureVideo from '../components/ui/StudentLectureVideo';
 import {gql,useQuery} from '@apollo/client';
+import Showcomments from '../components/ui/Showcomments';
 
 const getLectures = gql`
 
@@ -97,19 +98,19 @@ function StudentDashboard  (props){
   if (loading) return 'loading...';
 
   if (error) return `Error is ${error.message}`;
- console.log("data is" ,data)
+ 
   
   
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
   const Buttonpressed = (id)=> {
-    console.log(id,"id")
+   
     const clickedLectureObject = data.lectures.filter((item)=> item.id===id);
-    console.log("clickedLectureObject",clickedLectureObject);
+    
     initialLecture= clickedLectureObject;
     setCurrentLectureDetails(initialLecture)
-    console.log(currentLectureDetails,"currentlecturedetail")
+    
 
   }
 
@@ -136,7 +137,7 @@ function StudentDashboard  (props){
   );
 
   const container = window !== undefined ? () => window().document.body : undefined;
-
+   console.log("current lecture details",currentLectureDetails[0])
    return (
     <>
       <div className={classes.root}>
@@ -191,6 +192,7 @@ function StudentDashboard  (props){
       <main className={classes.content}>
         <div className={classes.toolbar} />
           <StudentLectureVideo currentLectureDetails={currentLectureDetails}/>
+          <Showcomments  lectureid={currentLectureDetails[0].id} />
       </main>
     </div>
   </>
