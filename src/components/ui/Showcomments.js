@@ -25,6 +25,7 @@ mutation MyMutation($comment:String!, $lectureid:String!,$user_id:String!) {
     id
     lectureid
     user_id
+    created_at
   }
 }
 `;
@@ -36,7 +37,7 @@ export default function Showcomments(props) {
   // here we will write hook to add comment 
   const [addCommentgraphql, { loading:loadingagainComments, error:erroragainComments, data: dataagainComments }] = useMutation(ADD_COMMENT);
   //hook to save comment
-  const [comment, setComment] = useState(null)
+  const [comment, setComment] = useState('')
 
    // here we will write hook to show coments
   const  {loading: loadingComments, error:errorComments, data:dataComments} = useQuery(SHOW_COMMENTS);
@@ -58,7 +59,21 @@ export default function Showcomments(props) {
   }, [dataComments]);
 
 
-
+  useEffect( () => {
+    // You need to wait until 'dataagainComments' has data
+      if (dataagainComments) {
+        updateComments();
+      }
+    }, [dataagainComments])
+    
+    
+    const updateComments = () => {
+        // Create a copy of comments;
+        const oldComments = [...showComment];
+        
+        // Then, join/concatenate oldComments with new comment (dataagainComments);
+        const newComments = [...oldComments, dataagainComments.insert_comments_one];
+    }
 
 
   //fetch user id from local storage
@@ -68,7 +83,7 @@ export default function Showcomments(props) {
   const addCommentFunc = () => {
     console.log("inside add comment func")
     addCommentgraphql({ variables: { comment: comment, lectureid: props.lectureid, user_id: user_id } })
-    setComment(null)
+    setComment('')
 
   }
 
@@ -81,11 +96,16 @@ export default function Showcomments(props) {
 
 
 
-  if (dataagainComments) {
-    console.log("after adding comment", dataagainComments)
-    const updatedCommentsAfterAddComment = showComment.push(dataagainComments) 
-    setShowComment(updatedCommentsAfterAddComment)
-  }
+  // if (dataagainComments) {
+  //   console.log("after adding comment", dataagainComments)
+  //   console.log("show comment",showComment)
+    
+  //   let updatedCommentsAfterAddComment = showComment;
+  //   console.log("gt",dataagainComments.insert_comments_one)
+  //   updatedCommentsAfterAddComment.push(dataagainComments.insert_comments_one);
+  //   console.log("updated comment",updatedCommentsAfterAddComment)
+  //   setShowComment(updatedCommentsAfterAddComment)
+  // }
   if (loadingagainComments) return 'loading2...';
 
   if (erroragainComments) return `Error is ${erroragainComments.message}`;
@@ -119,10 +139,10 @@ export default function Showcomments(props) {
         })
       
       }
-      <textarea onChange={(e) => setComment(e.target.value)} name="w3review" rows="10" cols="100">
+      <textarea onChange={(e) => setComment(e.target.value)} value={comment} name="w3review" rows="10" cols="100">
 
       </textarea>
-      <Button color="secondary" variant="contained">Cancel</Button>&nbsp;
+      <Button color="secondary" variant="contained" onClick={()=> setComment('')}>Cancel</Button>&nbsp;
       <Button color="primary" onClick={() => addCommentFunc()} variant="contained">Save</Button>
     </div>
   );
