@@ -6,6 +6,7 @@
 .pnp.js
 
 # cache
+*.eslintcache
 .eslintcache
 .cache
 
@@ -14,6 +15,9 @@
 
 # production
 /build
+
+# vscode
+.vscode/
 
 # misc
 .DS_Store

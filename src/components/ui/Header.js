@@ -1,12 +1,18 @@
-import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import { Link } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Box, Button, Grid, AppBar, Toolbar, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { authContext } from '../../auth/AuthContext';
+
+const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
+	appBar: {
+		[theme.breakpoints.up('sm')]: {
+			width: `calc(100% - ${drawerWidth}px)`,
+			marginLeft: drawerWidth,
+		},
+	},
 	menuButton: {
 		color: 'white',
 		textDecoration: 'none',
@@ -16,27 +22,50 @@ const useStyles = makeStyles((theme) => ({
 		fontWeight: '500',
 		lineHeight: '24.5px',
 		marginRight: theme.spacing(2),
+		textTransform: 'none',
 	},
 }));
 
 export default function Header(props) {
+	const { userProfile, signOut } = useContext(authContext);
+	const { isUserLogged = false, userName = '' } = userProfile;
+	const location = useLocation();
+	const paths = location.pathname.match(/\/([a-z]*)\//, 'g');
+	const [, path = ''] = paths || [];
 	const classes = useStyles();
 	return (
-		<AppBar>
+		<AppBar className={path === 'studentdashboard' ? classes.appBar : ''}>
 			<Toolbar>
-				<Grid container direction="row" justify="flex-end" alignItems="center">
-					<Grid item>
-						<Link className={classes.menuButton} to="login">
-							LOGIN
-						</Link>
-					</Grid>
+				<Box display="flex" justifyContent="flex-end" alignItems="center" flexGrow={1}>
+					{isUserLogged && (
+						<>
+							<Box mx={2}>
+								<Typography variant="body2">Welcome {userName}!</Typography>
+							</Box>
 
-					<Grid item>
-						<Link className={classes.menuButton} to="/register">
-							REGISTER
-						</Link>
-					</Grid>
-				</Grid>
+							<Box>
+								<Button className={classes.menuButton} onClick={() => signOut()}>
+									Sign out
+								</Button>
+							</Box>
+						</>
+					)}
+					{!isUserLogged && (
+						<>
+							<Box>
+								<Link className={classes.menuButton} to="/login">
+									Login
+								</Link>
+							</Box>
+
+							<Box>
+								<Link className={classes.menuButton} to="/register">
+									Register
+								</Link>
+							</Box>
+						</>
+					)}
+				</Box>
 			</Toolbar>
 		</AppBar>
 	);

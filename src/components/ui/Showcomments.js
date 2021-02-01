@@ -1,149 +1,101 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Button, Grid, Typography } from '@material-ui/core';
 import { gql, useMutation, useQuery, useLazyQuery } from '@apollo/client';
+import { authContext } from '../../auth/AuthContext';
+import { SHOW_COMMENTS } from '../../graphqlApi/querys';
+import { ADD_COMMENT } from '../../graphqlApi/mutations';
 
+export default function ShowComments({ lectureId }) {
+	const { userProfile } = useContext(authContext);
+	const [showComment, setShowComment] = useState([]);
 
-const SHOW_COMMENTS = gql`
-query MyQuery {
-    comments {
-      comment
-      id
-      lectureid
-      user_id
-      created_at
-    }
-  }
-`
+	const [
+		addCommentgraphql,
+		{ loading: loadingAddComment, error: errorAddComment, data: singleComment },
+	] = useMutation(ADD_COMMENT);
 
+	const [comment, setComment] = useState('');
 
+	const { loading: loadingComments, error: errorComments, data: allComments } = useQuery(
+		SHOW_COMMENTS
+	);
 
-const ADD_COMMENT = gql`
-mutation MyMutation($comment:String!, $lectureid:String!,$user_id:String!) {
-  insert_comments_one(object: {comment: $comment, lectureid: $lectureid, user_id: $user_id}) {
-    comment
-    id
-    lectureid
-    user_id
-    created_at
-  }
-}
-`;
+	useEffect(() => {
+		if (allComments && allComments.comments !== 0) {
+			loadComments(allComments.comments);
+		}
+	}, [allComments]);
 
+	useEffect(() => {
+		if (singleComment) {
+			setShowComment((oldComments) => [...oldComments, singleComment.insert_comments_one]);
+		}
+	}, [singleComment]);
 
-export default function Showcomments(props) {
-  //const useIdRef = useRef(null)
-  const [showComment, setShowComment] = useState([{ comment: "first comment", author: "freddy", date: "28/may/2019", photoURL: "www.yahoo.com" }])
-  // here we will write hook to add comment 
-  const [addCommentgraphql, { loading:loadingagainComments, error:erroragainComments, data: dataagainComments }] = useMutation(ADD_COMMENT);
-  //hook to save comment
-  const [comment, setComment] = useState('')
+	// this function will trigger on save button. We are adding comment in hasura and also making local comment state empty
+	const handleAddComment = () => {
+		addCommentgraphql({
+			variables: { comment: comment, lectureid: lectureId, user_id: userProfile.userId },
+		});
+		setComment('');
+	};
 
-   // here we will write hook to show coments
-  const  {loading: loadingComments, error:errorComments, data:dataComments} = useQuery(SHOW_COMMENTS);
+	const loadComments = (data) => {
+		setShowComment(data);
+	};
 
-  console.log("USE QUERY", useQuery(SHOW_COMMENTS))
+	const handleResetComment = () => {
+		setComment('');
+	};
 
-  //useEffect(() => { useIdRef.current = localStorage.getItem("user_id") }, [])
+	const handleNewComment = (event) => {
+		setComment(event.target.value);
+	};
 
- 
+	// if (dataagainComments) {
+	//   console.log("after adding comment", dataagainComments)
+	//   console.log("show comment",showComment)
 
+	//   let updatedCommentsAfterAddComment = showComment;
+	//   console.log("gt",dataagainComments.insert_comments_one)
+	//   updatedCommentsAfterAddComment.push(dataagainComments.insert_comments_one);
+	//   console.log("updated comment",updatedCommentsAfterAddComment)
+	//   setShowComment(updatedCommentsAfterAddComment)
+	// }
 
-
-  useEffect(() => {
-    console.log("inside useeffect")
-    if (dataComments) {
-      console.log("dataComments",dataComments)
-      loadComments(dataComments.comments)
-    }
-  }, [dataComments]);
-
-
-  useEffect( () => {
-    // You need to wait until 'dataagainComments' has data
-      if (dataagainComments) {
-        updateComments();
-      }
-    }, [dataagainComments])
-    
-    
-    const updateComments = () => {
-        // Create a copy of comments;
-        const oldComments = [...showComment];
-        
-        // Then, join/concatenate oldComments with new comment (dataagainComments);
-        const newComments = [...oldComments, dataagainComments.insert_comments_one];
-    }
-
-
-  //fetch user id from local storage
-  const user_id = localStorage.getItem("user_id")
-
-  // this function will trigger on save button. We are adding comment in hasura and also making local comment state empty
-  const addCommentFunc = () => {
-    console.log("inside add comment func")
-    addCommentgraphql({ variables: { comment: comment, lectureid: props.lectureid, user_id: user_id } })
-    setComment('')
-
-  }
-
-  const loadComments = (data) => {
-    console.log("loadcomment", data)
-    setShowComment(data)
-  }
-
-
-
-
-
-  // if (dataagainComments) {
-  //   console.log("after adding comment", dataagainComments)
-  //   console.log("show comment",showComment)
-    
-  //   let updatedCommentsAfterAddComment = showComment;
-  //   console.log("gt",dataagainComments.insert_comments_one)
-  //   updatedCommentsAfterAddComment.push(dataagainComments.insert_comments_one);
-  //   console.log("updated comment",updatedCommentsAfterAddComment)
-  //   setShowComment(updatedCommentsAfterAddComment)
-  // }
-  if (loadingagainComments) return 'loading2...';
-
-  if (erroragainComments) return `Error is ${erroragainComments.message}`;
-
-
-
-
-
-
-
-  return (
-    <div>
-      <h2>Comments </h2>
-      { 
-        showComment.map((value, key) => {
-          console.log("value is",value)
-
-          return (
-            <div style={{backgroundColor:"lightgrey",marginTop:"15px"}}>
-
-              <h6>{value.comment}</h6>
-              <h6>{value.created_at}</h6>
-              
-              
-
-            </div>
-
-
-          )
-
-        })
-      
-      }
-      <textarea onChange={(e) => setComment(e.target.value)} value={comment} name="w3review" rows="10" cols="100">
-
-      </textarea>
-      <Button color="secondary" variant="contained" onClick={()=> setComment('')}>Cancel</Button>&nbsp;
-      <Button color="primary" onClick={() => addCommentFunc()} variant="contained">Save</Button>
-    </div>
-  );
+	if (errorAddComment) return `Error is ${errorAddComment.message}`;
+	return (
+		<Box my={2}>
+			<Typography variant="h4">Comments </Typography>
+			{showComment.map(({ id, comment, created_at }) => (
+				<Box style={{ backgroundColor: 'lightgrey' }} my={1} p={1} key={id}>
+					<Typography variant="body1">{comment}</Typography>
+					<Typography variant="caption">{created_at}</Typography>
+				</Box>
+			))}
+			<Box my={2}>
+				<textarea
+					placeholder="Leave a comment"
+					onChange={handleNewComment}
+					value={comment}
+					name="w3review"
+					rows="5"
+					style={{ width: '100%', fontFamily: 'inherit', padding: '0.5rem' }}
+				/>
+				<Box display="flex" justifyContent="flex-end" my={1}>
+					<Box mx={1}>
+						<Button color="secondary" variant="outlined" onClick={handleResetComment} type="button">
+							Cancel
+						</Button>
+					</Box>
+					<Box mx={1}>
+						<Button color="primary" onClick={handleAddComment} variant="contained" type="button">
+							Comment
+						</Button>
+					</Box>
+				</Box>
+			</Box>
+		</Box>
+	);
 }
