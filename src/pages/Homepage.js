@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
 	Accordion,
@@ -67,7 +68,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Homepage() {
+	const history = useHistory();
 	const classes = useStyles();
+
+	useEffect(() => {
+		const existSessionActive = localStorage.getItem('user_token');
+
+		if (existSessionActive) {
+			history.replace('/studentdashboard');
+		} else {
+			history.replace('/');
+		}
+	}, []);
+
 	return (
 		<>
 			<section id="hero" className={classes.sectionContainer}>

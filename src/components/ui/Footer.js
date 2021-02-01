@@ -7,7 +7,7 @@ const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
 	footer: {
-		position: 'reltive',
+		position: 'relative',
 		width: '100%',
 		bottom: 0,
 	},
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Footer(props) {
 	const location = useLocation();
-	const paths = location.pathname.match(/\/([a-z]*)\//, 'g');
+	const paths = location.pathname.match(/\/([a-z]*)/, 'g');
 	const [, path = ''] = paths || [];
 	const classes = useStyles();
 	return (

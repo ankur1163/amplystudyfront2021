@@ -28,14 +28,15 @@ const authLink = setContext(({ operationName }, prevCtx) => {
 	};
 
 	if (token === undefined || token === null || token === '') {
-		console.log('token not found', token);
+		console.info('token not found', token);
 		return;
 	}
-	console.log('token found');
+	console.info('token found');
 	headers.authorization = `Bearer ${token}`;
 
 	return { headers };
 });
+
 const client = new ApolloClient({
 	cache: new InMemoryCache(),
 	link: authLink.concat(httpLink),
@@ -49,13 +50,14 @@ function App() {
 					<ApolloProvider client={client}>
 						<Header />
 						<Switch>
-							<Route exact path="/" component={Homepage}></Route>
-							<Route path="/login" component={Login}></Route>
-							<Route path="/register" component={Register}></Route>
-							<Route path="/studentdashboard" component={StudentDashboard}></Route>
-							<Route path="/instructordashboard" component={InstructorDashboard}></Route>
-							<Route path="/instructoreditlecture" component={InstructorEditLecture}></Route>
-							<Route path="/paymentcompleted" component={() => <h1>payment completed</h1>}></Route>
+							<Route exact path="/" component={Homepage} />
+							<Route path="/login" component={Login} />
+							<Route path="/register" component={Register} />
+							<Route path="/studentdashboard" component={StudentDashboard} />
+							<Route path="/instructordashboard" component={InstructorDashboard} />
+							<Route path="/instructoreditlecture" component={InstructorEditLecture} />
+							<Route path="/paymentcompleted" component={() => <h1>payment completed</h1>} />
+							<Route path="*" component={Homepage} />
 						</Switch>
 						<Footer />
 					</ApolloProvider>

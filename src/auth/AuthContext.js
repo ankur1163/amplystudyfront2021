@@ -19,6 +19,8 @@ export function AuthProvider({ children }) {
 
 		if (existSessionActive) {
 			updateUserProfile(existSessionActive);
+		} else {
+			history.replace('/');
 		}
 	}, []);
 

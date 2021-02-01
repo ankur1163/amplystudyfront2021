@@ -66,7 +66,7 @@ export default function ShowComments({ lectureId }) {
 
 	if (errorAddComment) return `Error is ${errorAddComment.message}`;
 	return (
-		<Box my={2}>
+		<Box my={2} mx={{ xs: 2, sm: 4, md: 5 }}>
 			<Typography variant="h4">Comments </Typography>
 			{showComment.map(({ id, comment, created_at }) => (
 				<Box style={{ backgroundColor: 'lightgrey' }} my={1} p={1} key={id}>

@@ -8,6 +8,15 @@ import { MARK_DONE, ADD_USER_PAY } from '../../graphqlApi/mutations';
 declare var Instamojo;
 
 const useStyles = makeStyles((theme) => ({
+	playerWrapper: {
+		position: 'relative',
+		paddingTop: '56.25%',
+	},
+	player: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+	},
 	wrapperButtonProgress: {
 		position: 'relative',
 	},
@@ -73,8 +82,15 @@ function StudentLectureVideo({
 					{description}
 				</Typography>
 			</Box>
-			<Box display="block" my={2}>
-				<ReactPlayer url={videoUrl} config={{ vimeo: { preload: true } }} controls width="100%" />
+			<Box display="block" my={2} className={classes.playerWrapper}>
+				<ReactPlayer
+					url={videoUrl}
+					config={{ vimeo: { preload: true } }}
+					controls
+					width="100%"
+					height="100%"
+					className={classes.player}
+				/>
 			</Box>
 			<Box display="flex" justifyContent="flex-end">
 				<Box mx={1}>

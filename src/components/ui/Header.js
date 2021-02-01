@@ -30,7 +30,7 @@ export default function Header(props) {
 	const { userProfile, signOut } = useContext(authContext);
 	const { isUserLogged = false, userName = '' } = userProfile;
 	const location = useLocation();
-	const paths = location.pathname.match(/\/([a-z]*)\//, 'g');
+	const paths = location.pathname.match(/\/([a-z]*)/, 'g');
 	const [, path = ''] = paths || [];
 	const classes = useStyles();
 	return (
