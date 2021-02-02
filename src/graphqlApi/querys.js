@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const getLectures = gql`
+export const GET_LECTURES = gql`
 	query MyQuery {
 		lectures {
 			title
