@@ -20,7 +20,7 @@ import StudentLectureVideo from '../components/ui/StudentLectureVideo';
 import Showcomments from '../components/ui/ShowComments';
 import Drawer from '../components/Drawer/Drawer';
 import { useQuery } from '@apollo/client';
-import { getLectures } from '../graphqlApi/querys';
+import { GET_LECTURES } from '../graphqlApi/querys';
 
 const drawerWidth = 240;
 
@@ -69,7 +69,7 @@ function StudentDashboard(props) {
 
 	const classes = useStyles();
 	const [mobileOpen, setMobileOpen] = useState(false);
-	const { loading, error, data = {} } = useQuery(getLectures);
+	const { loading, error, data = {} } = useQuery(GET_LECTURES);
 	const { lectures = [] } = data;
 	const [currentLectureDetails, setCurrentLectureDetails] = useState(initialLecture);
 
