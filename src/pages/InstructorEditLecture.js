@@ -6,9 +6,11 @@ import EditIcon from '@material-ui/icons/Edit';
 import { gql, useQuery } from '@apollo/client';
 import AddNewLectures from '../components/ui/AddNewLectures';
 import { GET_LECTURES } from '../graphqlApi/querys';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 export default function InstructorEditLecture(props) {
 	const [items, setItems] = useState([]);
+	
 	const { loading, error, data } = useQuery(GET_LECTURES);
 
 	useEffect(() => {
@@ -18,8 +20,22 @@ export default function InstructorEditLecture(props) {
 	}, [data]);
 
 	const handleLectureClick = (lectureId) => {
-		console.log(lectureId);
+		console.log("handle edit lecture" ,lectureId);
 	};
+
+	const afterAddingLectureHandler = (data)=> {
+		
+		console.log("after adding lecture parent function",data)
+		const newData = [...items,data]
+		console.log(newData,"newData")
+		setItems(newData)
+		
+
+	}
+
+	const handleDeleteClick = (lectureId)=> {
+		console.log("handle delete",lectureId)
+	}
 
 	const SortableItem = SortableElement(({ idLecture, value, valueNumber }) => (
 		<li
@@ -37,6 +53,11 @@ export default function InstructorEditLecture(props) {
 				color="primary"
 				style={{ cursor: 'pointer', padding: '0.5rem' }}
 				onClick={() => handleLectureClick(idLecture)}
+			/>
+			<DeleteIcon
+				color="primary"
+				style={{ cursor: 'pointer', padding: '0.5rem' }}
+				onClick={() => handleDeleteClick(idLecture)}
 			/>
 		</li>
 	));
@@ -68,6 +89,7 @@ export default function InstructorEditLecture(props) {
 	if (error) return `Error! ${error.message}`;
 
 	const onSortEnd = ({ oldIndex, newIndex }) => {
+		console.log("on sort end")
 		console.log('on sort end', oldIndex, newIndex);
 		document.body.style.cursor = 'default';
 		setItems(arrayMove(items, oldIndex, newIndex));
@@ -90,10 +112,10 @@ export default function InstructorEditLecture(props) {
 							onSortEnd={onSortEnd}
 							distance={2}
 						/>
-						<AddNewLectures />
+						<AddNewLectures afterAddingLecture={afterAddingLectureHandler} />
 					</Grid>
-					<Grid item sm={8}></Grid>
-					<Grid item></Grid>
+					<Grid item sm={8}>this is great whats the awesome and its amazing. These are great things to do. This is great and this is okish. Lets do it again and lets go to the hill, descend it. I am sure things will be ok</Grid>
+					
 				</Grid>
 			) : null}
 		</>

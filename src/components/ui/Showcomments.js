@@ -20,7 +20,7 @@ export default function ShowComments({ lectureId }) {
 	const { loading: loadingComments, error: errorComments, data: allComments } = useQuery(
 		SHOW_COMMENTS
 	);
-
+ //why this code works, like when we add new comment this component rerenders. How does this happen as we are not changing any local state
 	useEffect(() => {
 		if (allComments && allComments.comments !== 0) {
 			loadComments(allComments.comments);
