@@ -1,11 +1,11 @@
-import React, { useContext, useEffect,setState } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { Box, TextField, Typography, Grid, Button, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import gql from 'graphql-tag';
-import { useMutation,useLazyQuery,useQuery } from '@apollo/client';
+import { useMutation, useLazyQuery, useQuery } from '@apollo/client';
 import { authContext } from '../auth/AuthContext';
 import { decode } from '../util/token';
 
@@ -33,16 +33,12 @@ const SIGNIN_MUTATION = gql`
 `;
 
 const CHECK_ROLE_AFTER_SIGNIN = gql`
-query user($id: String) {
-	user(where: {id: {_eq: $id}}) {
-	  id
-	  role
+	query user($id: String) {
+		user(where: { id: { _eq: $id } }) {
+			id
+			role
+		}
 	}
-  }
-
-
-
-
 `;
 const validationSchema = Yup.object().shape({
 	email: Yup.string().email('It should be an email').required('This field is required'),
@@ -51,43 +47,48 @@ const validationSchema = Yup.object().shape({
 
 function Login(props) {
 	const classes = useStyles();
-	const { setUserProfile } = useContext(authContext);
-	
-	const [login, { loading }] = useMutation(SIGNIN_MUTATION);
-	const [checkRole,{  loading:loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN,{
-		fetchPolicy: "no-cache"
-	  });
-
 	const history = useHistory();
+	const userDataRef = useRef(null);
+	const { setUserProfile } = useContext(authContext);
+
+	const [login, { loading }] = useMutation(SIGNIN_MUTATION);
+	const [checkRole, { loading: loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN, {
+		fetchPolicy: 'no-cache',
+	});
+
+	useEffect(() => {
+		if (data) {
+			// Go to this function to set user data to authContext and localStorage
+			initUserData();
+		} else {
+			console.log('no data');
+		}
+	}, [data]);
+
+	const initUserData = () => {
+		const { name, user_id, email } = userDataRef.current;
+
+		// You can use 'data' here
+
+		// localStorage.setItem('userToken', login.accessToken);
+		// localStorage.setItem('userId', user_id);
+
+		// setUserProfile({
+		// 	isUserLogged: true,
+		// 	userName: name,
+		// 	userId: user_id,
+		// 	userEmail: email,
+		// });
+
+		// history.push('/studentdashboard');
+	};
 
 	const afterLogin = ({ login }) => {
-		const { name, user_id, email } = decode(login.accessToken);
-		//console.log("logged in ",checkrole)
-		localStorage.setItem('user_token', login.accessToken);
-		localStorage.setItem('userid', user_id);
-
-		setUserProfile({
-			isUserLogged: true,
-			userName: name,
-			userId: user_id,
-			userEmail: email,
-		});
-		console.log("checkrole")
+		const userDecodeData = decode(login.accessToken);
+		userDataRef.current = userDecodeData;
+		const { user_id } = userDecodeData;
 		checkRole({ variables: { id: user_id } });
-		if(loading2){
-			console.log("loading 2")
-		}
-			if(data){
-				console.log("data after checkup")
-			}
-		
 
-			
-		
-		
-		
-		
-		
 		// if(data){
 		// 	if(data.user[0].role==="user"){
 		// 		console.log("user is user")
@@ -95,12 +96,8 @@ function Login(props) {
 		// 	else if (data.user[0].role==="admin"){
 		// 		console.log("its admin")
 		// 	}
-			
-		// 	// run checkrole function given by apollo
-			
+
 		// }
-		
-		history.push('/studentdashboard');
 	};
 	const signinHandler = (values) => {
 		console.log('values for sign in', values);
@@ -109,7 +106,7 @@ function Login(props) {
 			return errors ? console.error(errors) : afterLogin(data);
 		});
 	};
-	
+
 	return (
 		<Grid
 			container
