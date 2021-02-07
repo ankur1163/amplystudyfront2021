@@ -17,7 +17,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import StudentLectureVideo from '../components/ui/StudentLectureVideo';
-import Showcomments from '../components/ui/ShowComments';
+import ShowComments from '../components/ui/ShowComments';
 import Drawer from '../components/Drawer/Drawer';
 import { useQuery } from '@apollo/client';
 import { getLectures } from '../graphqlApi/querys';
@@ -103,7 +103,7 @@ function StudentDashboard(props) {
 			</nav>
 			<div className="amply-wrapper">
 				<StudentLectureVideo {...currentLectureDetails} />
-				<Showcomments lectureId={currentLectureDetails.id} />
+				<ShowComments lectureId={currentLectureDetails.id} />
 			</div>
 		</main>
 	);

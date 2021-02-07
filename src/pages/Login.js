@@ -1,11 +1,11 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect,setState } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { Box, TextField, Typography, Grid, Button, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import gql from 'graphql-tag';
-import { useMutation } from '@apollo/client';
+import { useMutation,useLazyQuery } from '@apollo/client';
 import { authContext } from '../auth/AuthContext';
 import { decode } from '../util/token';
 
@@ -31,6 +31,19 @@ const SIGNIN_MUTATION = gql`
 		}
 	}
 `;
+
+const CHECK_ROLE_AFTER_SIGNIN = gql`
+query MyQuery($id: String) {
+	user(where: {id: {_eq: $id}}) {
+	  id
+	  role
+	}
+  }
+
+
+
+
+`;
 const validationSchema = Yup.object().shape({
 	email: Yup.string().email('It should be an email').required('This field is required'),
 	password: Yup.string().required('This field is required'),
@@ -39,24 +52,45 @@ const validationSchema = Yup.object().shape({
 function Login(props) {
 	const classes = useStyles();
 	const { setUserProfile } = useContext(authContext);
+	
 	const [login, { loading }] = useMutation(SIGNIN_MUTATION);
+	const [checkrole, { called, loading:loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN);
+
 	const history = useHistory();
 
 	const afterLogin = ({ login }) => {
 		const { name, user_id, email } = decode(login.accessToken);
+		console.log("logged in ")
 		localStorage.setItem('user_token', login.accessToken);
+		localStorage.setItem('userid', user_id);
+
 		setUserProfile({
 			isUserLogged: true,
 			userName: name,
 			userId: user_id,
 			userEmail: email,
 		});
+		checkrole({ variables: { id: user_id } });
+		console.log("data is",data)
+		
+		if(data){
+			if(data.user[0].role==="user"){
+				console.log("user is user")
+			}
+			else if (data.user[0].role==="admin"){
+				console.log("its admin")
+			}
+			
+			// run checkrole function given by apollo
+			
+		}
+		
 		history.push('/studentdashboard');
 	};
 	const signinHandler = (values) => {
 		console.log('values for sign in', values);
 		login({ variables: values }).then(({ errors, data }) => {
-			console.log('data is ', data);
+			console.log('login auth ', data);
 			return errors ? console.error(errors) : afterLogin(data);
 		});
 	};
