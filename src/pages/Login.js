@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import gql from 'graphql-tag';
-import { useMutation,useLazyQuery } from '@apollo/client';
+import { useMutation,useLazyQuery,useQuery } from '@apollo/client';
 import { authContext } from '../auth/AuthContext';
 import { decode } from '../util/token';
 
@@ -33,7 +33,7 @@ const SIGNIN_MUTATION = gql`
 `;
 
 const CHECK_ROLE_AFTER_SIGNIN = gql`
-query MyQuery($id: String) {
+query user($id: String) {
 	user(where: {id: {_eq: $id}}) {
 	  id
 	  role
@@ -54,13 +54,13 @@ function Login(props) {
 	const { setUserProfile } = useContext(authContext);
 	
 	const [login, { loading }] = useMutation(SIGNIN_MUTATION);
-	const [checkrole, { called, loading:loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN);
+	const [checkrole,{ called, loading:loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN);
 
 	const history = useHistory();
 
 	const afterLogin = ({ login }) => {
 		const { name, user_id, email } = decode(login.accessToken);
-		console.log("logged in ")
+		//console.log("logged in ",checkrole)
 		localStorage.setItem('user_token', login.accessToken);
 		localStorage.setItem('userid', user_id);
 
@@ -70,20 +70,33 @@ function Login(props) {
 			userId: user_id,
 			userEmail: email,
 		});
+		console.log("checkrole",checkrole)
 		checkrole({ variables: { id: user_id } });
-		console.log("data is",data)
 		
-		if(data){
-			if(data.user[0].role==="user"){
-				console.log("user is user")
-			}
-			else if (data.user[0].role==="admin"){
-				console.log("its admin")
-			}
-			
-			// run checkrole function given by apollo
-			
+		if(loading2){
+			console.log("loading 2")
 		}
+			if(data){
+				console.log("data after checkup")
+			}
+
+			
+		
+		
+		
+		
+		
+		// if(data){
+		// 	if(data.user[0].role==="user"){
+		// 		console.log("user is user")
+		// 	}
+		// 	else if (data.user[0].role==="admin"){
+		// 		console.log("its admin")
+		// 	}
+			
+		// 	// run checkrole function given by apollo
+			
+		// }
 		
 		history.push('/studentdashboard');
 	};
