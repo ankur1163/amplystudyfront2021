@@ -54,7 +54,9 @@ function Login(props) {
 	const { setUserProfile } = useContext(authContext);
 	
 	const [login, { loading }] = useMutation(SIGNIN_MUTATION);
-	const [checkrole,{ called, loading:loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN);
+	const [checkRole,{  loading:loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN,{
+		fetchPolicy: "no-cache"
+	  });
 
 	const history = useHistory();
 
@@ -70,15 +72,15 @@ function Login(props) {
 			userId: user_id,
 			userEmail: email,
 		});
-		console.log("checkrole",checkrole)
-		checkrole({ variables: { id: user_id } });
-		
+		console.log("checkrole")
+		checkRole({ variables: { id: user_id } });
 		if(loading2){
 			console.log("loading 2")
 		}
 			if(data){
 				console.log("data after checkup")
 			}
+		
 
 			
 		
@@ -107,6 +109,7 @@ function Login(props) {
 			return errors ? console.error(errors) : afterLogin(data);
 		});
 	};
+	
 	return (
 		<Grid
 			container
