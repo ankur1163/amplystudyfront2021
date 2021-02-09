@@ -58,17 +58,37 @@ function Login(props) {
 
 	useEffect(() => {
 		if (data) {
+			console.log("checkrole",data)
+			localStorage.setItem("role",data.user[0].role)
 			// Go to this function to set user data to authContext and localStorage
-			initUserData();
+			initUserData(data);
+			if(data.user[0].role==="admin"){
+							
+				history.push('/instructordashboard')
+			}
+			else {
+				history.push('/studentdashboard')
+
+			}
 		} else {
 			console.log('no data');
 		}
 	}, [data]);
 
-	const initUserData = () => {
-		const { name, user_id, email } = userDataRef.current;
+	const initUserData = (data) => {
+		//const { name, user_id, email } = userDataRef.current;
 
-		// You can use 'data' here
+		// You can use 'data' hereuser[0].role
+		
+			
+			setUserProfile({
+			isUserLogged: true,
+			userName: data.user[0].name,
+			userId: data.user[0].user_id,
+			userEmail: data.user[0].email,
+			role:data.user[0].role,
+		});
+		
 
 		// localStorage.setItem('userToken', login.accessToken);
 		// localStorage.setItem('userId', user_id);
@@ -84,10 +104,12 @@ function Login(props) {
 	};
 
 	const afterLogin = ({ login }) => {
-		const userDecodeData = decode(login.accessToken);
-		userDataRef.current = userDecodeData;
-		const { user_id } = userDecodeData;
+		console.log("login is",login)
+		localStorage.setItem('user_token', login.accessToken);
+		localStorage.setItem('userId', login.id);
+		const user_id = login.id
 		checkRole({ variables: { id: user_id } });
+		
 
 		// if(data){
 		// 	if(data.user[0].role==="user"){
@@ -106,6 +128,8 @@ function Login(props) {
 			return errors ? console.error(errors) : afterLogin(data);
 		});
 	};
+
+	
 
 	return (
 		<Grid

@@ -103,7 +103,7 @@ function InstructorDashboard(props) {
 			<Divider />
 			<List>
 				{data.lectures.map((text, index) => (
-					<ListItem button key={text.title}>
+					<ListItem button key={index}>
 						<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
 						<ListItemText primary={text.title} />
 					</ListItem>
