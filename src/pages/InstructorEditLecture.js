@@ -18,14 +18,29 @@ mutation MyMutation($id:String!) {
 `;
 
 export default function InstructorEditLecture(props) {
-	const [items, setItems] = useState([]);
+	const [items, setItems] = useState([{description: "how to get started in virtual assistant world",
+	id: "c73ac038-22d1-4a8c-a342-c21997c9e480",
+	paid: false,
+	snumber: 1,
+	title: "introduction - why, where and who",
+	type: "lecture",
+	videoUrl: "https://vimeo.com/451565367",
+	}]);
 	const { loading, error, data } = useQuery(GET_LECTURES);
+	const [getLectures,{loading:loadingLectures,data:dataLectures}]= useLazyQuery(GET_LECTURES);
 	const [deleteLecture, { loading: loading2, data:data2 }] = useMutation(DELETE_LECTURE);
 	useEffect(() => {
-		if (data) {
-			setItems(data.lectures);
+		function initLectures() {
+		  getLectures()
 		}
-	}, [data]);
+		initLectures()
+  }, []);
+
+  useEffect(() => {
+	  if (dataLectures) {
+		  setItems(dataLectures.lectures);
+	  }
+  }, [dataLectures]);
 
 	const handleLectureEdit = (lectureId) => {
 		console.log(lectureId);
@@ -33,6 +48,15 @@ export default function InstructorEditLecture(props) {
 	const handleLectureDelete = (lectureId)=> {
 		console.log("handle delete",lectureId)
 		deleteLecture(lectureId);
+		if(data2){
+			console.log("lecture deleted")
+		}
+		const updatedItems = getLectures();
+		let newItems = items.filter(function(value,index,arr){
+			return value.id !== lectureId
+		})
+		setItems(updatedItems)
+		console.log("ends handle delete")
 	}
 
 	const SortableItem = SortableElement(({ idLecture, value, valueNumber }) => (
