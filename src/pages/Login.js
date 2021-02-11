@@ -56,7 +56,7 @@ function Login(props) {
 	const signinHandler = (values) => {
 		console.log('values for sign in', values);
 		login({ variables: values }).then(({ errors, data }) => {
-			console.log('data is ', data);
+			console.log('data after login ', data);
 			return errors ? console.error(errors) : afterLogin(data);
 		});
 	};
