@@ -1,11 +1,11 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { Box, TextField, Typography, Grid, Button, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import gql from 'graphql-tag';
-import { useMutation } from '@apollo/client';
+import { useMutation, useLazyQuery, useQuery } from '@apollo/client';
 import { authContext } from '../auth/AuthContext';
 import { decode } from '../util/token';
 
@@ -31,6 +31,15 @@ const SIGNIN_MUTATION = gql`
 		}
 	}
 `;
+
+const CHECK_ROLE_AFTER_SIGNIN = gql`
+	query user($id: String) {
+		user(where: { id: { _eq: $id } }) {
+			id
+			role
+		}
+	}
+`;
 const validationSchema = Yup.object().shape({
 	email: Yup.string().email('It should be an email').required('This field is required'),
 	password: Yup.string().required('This field is required'),
@@ -38,28 +47,90 @@ const validationSchema = Yup.object().shape({
 
 function Login(props) {
 	const classes = useStyles();
-	const { setUserProfile } = useContext(authContext);
-	const [login, { loading }] = useMutation(SIGNIN_MUTATION);
 	const history = useHistory();
+	const userDataRef = useRef(null);
+	const { setUserProfile } = useContext(authContext);
+
+	const [login, { loading }] = useMutation(SIGNIN_MUTATION);
+	const [checkRole, { loading: loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN, {
+		fetchPolicy: 'no-cache',
+	});
+
+	useEffect(() => {
+		if (data) {
+			console.log("checkrole",data)
+			localStorage.setItem("role",data.user[0].role)
+			// Go to this function to set user data to authContext and localStorage
+			initUserData(data);
+			if(data.user[0].role==="admin"){
+							
+				history.push('/instructordashboard')
+			}
+			else {
+				history.push('/studentdashboard')
+
+			}
+		} else {
+			console.log('no data');
+		}
+	}, [data]);
+
+	const initUserData = (data) => {
+		//const { name, user_id, email } = userDataRef.current;
+
+		// You can use 'data' hereuser[0].role
+		
+			
+			setUserProfile({
+			isUserLogged: true,
+			userName: data.user[0].name,
+			userId: data.user[0].user_id,
+			userEmail: data.user[0].email,
+			role:data.user[0].role,
+		});
+		
+
+		// localStorage.setItem('userToken', login.accessToken);
+		// localStorage.setItem('userId', user_id);
+
+		// setUserProfile({
+		// 	isUserLogged: true,
+		// 	userName: name,
+		// 	userId: user_id,
+		// 	userEmail: email,
+		// });
+
+		// history.push('/studentdashboard');
+	};
 
 	const afterLogin = ({ login }) => {
-		const { name, user_id, email } = decode(login.accessToken);
+		console.log("login is",login)
 		localStorage.setItem('user_token', login.accessToken);
-		setUserProfile({
-			isUserLogged: true,
-			userName: name,
-			userId: user_id,
-			userEmail: email,
-		});
-		history.push('/studentdashboard');
+		localStorage.setItem('userId', login.id);
+		const user_id = login.id
+		checkRole({ variables: { id: user_id } });
+		
+
+		// if(data){
+		// 	if(data.user[0].role==="user"){
+		// 		console.log("user is user")
+		// 	}
+		// 	else if (data.user[0].role==="admin"){
+		// 		console.log("its admin")
+		// 	}
+
+		// }
 	};
 	const signinHandler = (values) => {
 		console.log('values for sign in', values);
 		login({ variables: values }).then(({ errors, data }) => {
-			console.log('data is ', data);
+			console.log('login auth ', data);
 			return errors ? console.error(errors) : afterLogin(data);
 		});
 	};
+
+	
+
 	return (
 		<Grid
 			container

@@ -25,12 +25,17 @@ export function AuthProvider({ children }) {
 	}, []);
 
 	const updateUserProfile = (session) => {
-		const { name, user_id, email } = decode(session);
+		
+		const name = localStorage.getItem("name");
+		const user_id = localStorage.getItem("userId");
+		const role = localStorage.getItem("role");
+		const email = localStorage.getItem("email");
 		setUserProfile({
 			...initialState,
-			userName: name,
+			//userName: name,
 			userId: user_id,
 			userEmail: email,
+			role:role
 		});
 	};
 

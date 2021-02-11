@@ -21,7 +21,7 @@ import InstructorLecturesDisplay from '../components/ui/InstructorLecturesDispla
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { gql, useQuery } from '@apollo/client';
 
-const getLectures = gql`
+const GET_LECTURES = gql`
 	query MyQuery {
 		lectures {
 			title
@@ -80,7 +80,7 @@ function InstructorDashboard(props) {
 	const handleDrawerToggle = () => {
 		setMobileOpen(!mobileOpen);
 	};
-	const { loading, error, data } = useQuery(getLectures);
+	const { loading, error, data } = useQuery(GET_LECTURES);
 
 	if (loading) return 'Loading...';
 
@@ -103,7 +103,7 @@ function InstructorDashboard(props) {
 			<Divider />
 			<List>
 				{data.lectures.map((text, index) => (
-					<ListItem button key={text.title}>
+					<ListItem button key={index}>
 						<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
 						<ListItemText primary={text.title} />
 					</ListItem>
