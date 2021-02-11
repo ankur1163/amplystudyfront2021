@@ -14,6 +14,14 @@ const useStyles = makeStyles((theme) => ({
 		textDecoration: 'none',
 		margin: '0 0.5rem',
 	},
+	loginContainer: {
+		display: 'table',
+		height: '100%',
+	},
+	loginForm: {
+		display: 'table-cell',
+		verticalAlign: 'middle',
+	},
 }));
 
 const initialValues = {
@@ -60,91 +68,93 @@ function Register(props) {
 	};
 
 	return (
-		<>
+		<div className="amply-wrapper">
 			<Grid
 				container
 				spacing={0}
 				direction="column"
 				alignItems="center"
 				justify="center"
-				style={{ height: 'calc(100vh - 240px)' }}
+				className={classes.loginContainer}
 			>
-				<Typography variant="h6">Create account</Typography>
+				<div className={classes.loginForm}>
+					<Typography variant="h6">Create account</Typography>
 
-				<Formik
-					initialValues={initialValues}
-					validationSchema={validationSchema}
-					onSubmit={signupHandler}
-				>
-					{({
-						values,
-						touched,
-						errors,
-						isValid,
-						handleChange,
-						handleBlur,
-						handleSubmit,
-						isInitialValid,
-					}) => (
-						<form onSubmit={handleSubmit}>
-							<Box>
-								<TextField
-									label="Display Name"
-									name="displayName"
-									value={values.displayName}
-									onChange={handleChange}
-									onBlur={handleBlur}
-									error={touched.displayName && errors.displayName}
-									helperText={touched.displayName && errors.displayName}
-									margin="normal"
-									fullWidth
-								/>
-							</Box>
+					<Formik
+						initialValues={initialValues}
+						validationSchema={validationSchema}
+						onSubmit={signupHandler}
+					>
+						{({
+							values,
+							touched,
+							errors,
+							isValid,
+							handleChange,
+							handleBlur,
+							handleSubmit,
+							isInitialValid,
+						}) => (
+							<form onSubmit={handleSubmit}>
+								<Box>
+									<TextField
+										label="Display Name"
+										name="displayName"
+										value={values.displayName}
+										onChange={handleChange}
+										onBlur={handleBlur}
+										error={touched.displayName && errors.displayName}
+										helperText={touched.displayName && errors.displayName}
+										margin="normal"
+										fullWidth
+									/>
+								</Box>
 
-							<Box>
-								<TextField
-									label="Email"
-									name="email"
-									onChange={handleChange}
-									onBlur={handleBlur}
-									error={touched.email && errors.email}
-									helperText={touched.email && errors.email}
-									margin="normal"
-									fullWidth
-								/>
-							</Box>
+								<Box>
+									<TextField
+										label="Email"
+										name="email"
+										onChange={handleChange}
+										onBlur={handleBlur}
+										error={touched.email && errors.email}
+										helperText={touched.email && errors.email}
+										margin="normal"
+										fullWidth
+									/>
+								</Box>
 
-							<Box>
-								<TextField
-									type="password"
-									label="password"
-									name="password"
-									onChange={handleChange}
-									onBlur={handleBlur}
-									error={touched.password && errors.password}
-									helperText={touched.password && errors.password}
-									margin="normal"
-									fullWidth
-								/>
-							</Box>
-							<Box display="flex" justifyContent="space-around" mt={2} mb={4}>
-								<Button variant="contained" color="primary" type="submit">
-									Sign up
-								</Button>
-							</Box>
-							<Box>
-								<Typography variant="body2" color="textSecondary">
-									Already have an account?
-									<Link to="/login" className={classes.loginLink}>
-										Login
-									</Link>
-								</Typography>
-							</Box>
-						</form>
-					)}
-				</Formik>
+								<Box>
+									<TextField
+										type="password"
+										label="password"
+										name="password"
+										onChange={handleChange}
+										onBlur={handleBlur}
+										error={touched.password && errors.password}
+										helperText={touched.password && errors.password}
+										margin="normal"
+										fullWidth
+									/>
+								</Box>
+								<Box display="flex" justifyContent="space-around" mt={2} mb={4}>
+									<Button variant="contained" color="primary" type="submit">
+										Sign up
+									</Button>
+								</Box>
+								<Box>
+									<Typography variant="body2" color="textSecondary">
+										Already have an account?
+										<Link to="/login" className={classes.loginLink}>
+											Login
+										</Link>
+									</Typography>
+								</Box>
+							</form>
+						)}
+					</Formik>
+				</div>
 			</Grid>
-		</>
+		</div>
 	);
 }
 

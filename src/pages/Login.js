@@ -16,6 +16,14 @@ const useStyles = makeStyles((theme) => ({
 		textDecoration: 'none',
 		margin: '0 0.5rem',
 	},
+	loginContainer: {
+		display: 'table',
+		height: '100%',
+	},
+	loginForm: {
+		display: 'table-cell',
+		verticalAlign: 'middle',
+	},
 }));
 
 const initialValues = {
@@ -58,17 +66,14 @@ function Login(props) {
 
 	useEffect(() => {
 		if (data) {
-			console.log("checkrole",data)
-			localStorage.setItem("role",data.user[0].role)
+			console.log('checkrole', data);
+			localStorage.setItem('role', data.user[0].role);
 			// Go to this function to set user data to authContext and localStorage
 			initUserData(data);
-			if(data.user[0].role==="admin"){
-							
-				history.push('/instructordashboard')
-			}
-			else {
-				history.push('/studentdashboard')
-
+			if (data.user[0].role === 'admin') {
+				history.push('/instructordashboard');
+			} else {
+				history.push('/studentdashboard');
 			}
 		} else {
 			console.log('no data');
@@ -79,16 +84,14 @@ function Login(props) {
 		//const { name, user_id, email } = userDataRef.current;
 
 		// You can use 'data' hereuser[0].role
-		
-			
-			setUserProfile({
+
+		setUserProfile({
 			isUserLogged: true,
 			userName: data.user[0].name,
 			userId: data.user[0].user_id,
 			userEmail: data.user[0].email,
-			role:data.user[0].role,
+			role: data.user[0].role,
 		});
-		
 
 		// localStorage.setItem('userToken', login.accessToken);
 		// localStorage.setItem('userId', user_id);
@@ -104,12 +107,11 @@ function Login(props) {
 	};
 
 	const afterLogin = ({ login }) => {
-		console.log("login is",login)
+		console.log('login is', login);
 		localStorage.setItem('user_token', login.accessToken);
 		localStorage.setItem('userId', login.id);
-		const user_id = login.id
+		const user_id = login.id;
 		checkRole({ variables: { id: user_id } });
-		
 
 		// if(data){
 		// 	if(data.user[0].role==="user"){
@@ -129,85 +131,86 @@ function Login(props) {
 		});
 	};
 
-	
-
 	return (
-		<Grid
-			container
-			spacing={0}
-			direction="column"
-			alignItems="center"
-			justify="center"
-			style={{ height: 'calc(100vh - 240px)' }}
-		>
-			{loading && <CircularProgress color="primary" />}
-			{!loading && (
-				<>
-					<Typography variant="h6">Sign in</Typography>
+		<div className="amply-wrapper">
+			<Grid
+				container
+				direction="column"
+				alignItems="center"
+				justify="center"
+				className={classes.loginContainer}
+			>
+				{loading && <CircularProgress color="primary" />}
+				{!loading && (
+					<div className={classes.loginForm}>
+						<Box>
+							<Typography variant="h6">Sign in</Typography>
+						</Box>
 
-					<Formik
-						initialValues={initialValues}
-						onSubmit={signinHandler}
-						validationSchema={validationSchema}
-					>
-						{({
-							values,
-							touched,
-							errors,
-							handleChange,
-							handleBlur,
-							handleSubmit,
-							isInitialValid,
-							submitCount,
-							isSubmitting,
-						}) => (
-							<form onSubmit={handleSubmit}>
-								<Box>
-									<TextField
-										label="Email"
-										name="email"
-										value={values.email}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										error={touched.email && errors.email}
-										helperText={touched.email && errors.email}
-										margin="normal"
-										fullWidth
-									/>
-								</Box>
-								<Box>
-									<TextField
-										type="password"
-										label="Password"
-										name="password"
-										value={values.password}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										error={touched.password && errors.password}
-										helperText={touched.password && errors.password}
-										margin="normal"
-										fullWidth
-									/>
-								</Box>
-								<Box mt={2} mb={4} align="center">
-									<Button variant="contained" color="secondary" type="submit">
-										Sign in to Amply Study
-									</Button>
-								</Box>
-								<Box>
-									<Typography variant="body2" color="textSecondary">
-										Don't have an account yet?
-										<Link to="/register" className={classes.loginLink}>
-											Sign up
-										</Link>
-									</Typography>
-								</Box>
-							</form>
-						)}
-					</Formik>
-				</>
-			)}
-		</Grid>
+						<Formik
+							initialValues={initialValues}
+							onSubmit={signinHandler}
+							validationSchema={validationSchema}
+						>
+							{({
+								values,
+								touched,
+								errors,
+								handleChange,
+								handleBlur,
+								handleSubmit,
+								isInitialValid,
+								submitCount,
+								isSubmitting,
+							}) => (
+								<form onSubmit={handleSubmit}>
+									<Box>
+										<TextField
+											label="Email"
+											name="email"
+											value={values.email}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											error={touched.email && errors.email}
+											helperText={touched.email && errors.email}
+											margin="normal"
+											fullWidth
+										/>
+									</Box>
+									<Box>
+										<TextField
+											type="password"
+											label="Password"
+											name="password"
+											value={values.password}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											error={touched.password && errors.password}
+											helperText={touched.password && errors.password}
+											margin="normal"
+											fullWidth
+										/>
+									</Box>
+									<Box mt={2} mb={4} align="center">
+										<Button variant="contained" color="secondary" type="submit">
+											Sign in
+										</Button>
+									</Box>
+									<Box>
+										<Typography variant="body2" color="textSecondary">
+											Don't have an account yet?
+											<Link to="/register" className={classes.loginLink}>
+												Sign up
+											</Link>
+										</Typography>
+									</Box>
+								</form>
+							)}
+						</Formik>
+					</div>
+				)}
+			</Grid>
+		</div>
 	);
 }
 
