@@ -1,10 +1,9 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
 	Accordion,
 	AccordionSummary,
-	Demos,
 	AccordionDetails,
 	Box,
 	Button,
@@ -14,20 +13,14 @@ import {
 } from '@material-ui/core';
 import ReactPlayer from 'react-player';
 import desk from '../assets/desk1.png';
-import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
-
 import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
 import CheckIcon from '@material-ui/icons/Check';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import BuildIcon from '@material-ui/icons/Build';
 import FormatQuoteIcon from '@material-ui/icons/FormatQuote';
 import light1 from '../assets/light1.jpg';
-import ComputerIcon from '@material-ui/icons/Computer';
-import SettingsIcon from '@material-ui/icons/Settings';
-
 import AddIcon from '@material-ui/icons/Add';
 import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
-import SentimentVeryDissatisfiedIcon from '@material-ui/icons/SentimentVeryDissatisfied';
 import HomeWorkIcon from '@material-ui/icons/HomeWork';
 import CardMembershipIcon from '@material-ui/icons/CardMembership';
 import NextWeekIcon from '@material-ui/icons/NextWeek';
@@ -65,6 +58,18 @@ const useStyles = makeStyles((theme) => ({
 		height: '10vh',
 		backgroundColor: 'blue',
 	},
+	playerWrapper: {
+		position: 'relative',
+		paddingTop: '56.25%',
+	},
+	player: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+	},
+	p: {
+		padding: '1rem',
+	},
 }));
 
 function Homepage() {
@@ -82,7 +87,7 @@ function Homepage() {
 	}, []);
 
 	return (
-		<>
+		<div className="amply-wrapper">
 			<section id="hero" className={classes.sectionContainer}>
 				<Grid
 					container
@@ -114,12 +119,14 @@ function Homepage() {
 						Watch this short video
 					</Typography>
 				</Box>
-				<Box display="flex">
+				<Box display="block" my={2} className={classes.playerWrapper}>
 					<ReactPlayer
-						width="100%"
 						url="https://vimeo.com/451565367"
 						config={{ vimeo: { preload: true } }}
 						controls
+						width="100%"
+						height="100%"
+						className={classes.player}
 					/>
 				</Box>
 			</section>
@@ -134,13 +141,21 @@ function Homepage() {
 				{/* the process ends */}
 				{/* the process steps start */}
 				<Box pt={2} pb={{ xs: 4, sm: 3 }}>
-					<Grid container spacing={1} direction="row" justify="space-around" alignItems="center">
-						<Grid item sm={5}>
+					<Grid container direction="row" justify="space-around" alignItems="center">
+						<Grid item xs={12} md={5}>
 							<Box display="flex">
 								<img width="100%" src={desk} alt="Process AmplyStudio" />
 							</Box>
 						</Grid>
-						<Grid item align="center" container direction="column" spacing={3} sm={7}>
+						<Grid
+							item
+							xs={12}
+							md={7}
+							align="center"
+							container
+							direction="column"
+							className={classes.p}
+						>
 							<Grid item>
 								<Typography align="center" variant="h2">
 									1
@@ -157,13 +172,13 @@ function Homepage() {
 					</Grid>
 				</Box>
 				<Box pt={2} pb={{ xs: 4, sm: 3 }}>
-					<Grid container spacing={1} direction="row" justify="space-around" alignItems="center">
+					<Grid container direction="row" justify="space-around" alignItems="center">
 						<Grid item sm={5}>
 							<Box display="flex">
 								<img width="100%" src={desk} alt="Process AmplyStudio" />
 							</Box>
 						</Grid>
-						<Grid item align="center" container direction="column" spacing={3} sm={7}>
+						<Grid item align="center" container direction="column" sm={7} className={classes.p}>
 							<Grid item>
 								<Typography align="center" variant="h2">
 									2
@@ -180,13 +195,13 @@ function Homepage() {
 					</Grid>
 				</Box>
 				<Box pt={2} pb={{ xs: 4, sm: 3 }}>
-					<Grid container spacing={1} direction="row" justify="space-around" alignItems="center">
+					<Grid container direction="row" justify="space-around" alignItems="center">
 						<Grid item sm={5}>
 							<Box display="flex">
 								<img width="100%" src={desk} alt="Process AmplyStudio" />
 							</Box>
 						</Grid>
-						<Grid item align="center" container direction="column" spacing={3} sm={7}>
+						<Grid item align="center" container direction="column" sm={7} className={classes.p}>
 							<Grid item>
 								<Typography align="center" variant="h2">
 									3
@@ -203,13 +218,13 @@ function Homepage() {
 					</Grid>
 				</Box>
 				<Box pt={2} pb={{ xs: 4, sm: 3 }}>
-					<Grid container spacing={1} direction="row" justify="space-around" alignItems="center">
+					<Grid container direction="row" justify="space-around" alignItems="center">
 						<Grid item sm={5}>
 							<Box display="flex">
 								<img width="100%" src={desk} alt="Process AmplyStudio" />
 							</Box>
 						</Grid>
-						<Grid item align="center" container direction="column" spacing={3} sm={7}>
+						<Grid item align="center" container direction="column" sm={7} className={classes.p}>
 							<Grid item>
 								<Typography align="center" variant="h2">
 									4
@@ -226,13 +241,13 @@ function Homepage() {
 					</Grid>
 				</Box>
 				<Box pt={2} pb={{ xs: 4, sm: 3 }}>
-					<Grid container spacing={1} direction="row" justify="space-around" alignItems="center">
+					<Grid container direction="row" justify="space-around" alignItems="center">
 						<Grid item sm={5}>
 							<Box display="flex">
 								<img width="100%" src={desk} alt="Process AmplyStudio" />
 							</Box>
 						</Grid>
-						<Grid item align="center" container direction="column" spacing={3} sm={7}>
+						<Grid item align="center" container direction="column" sm={7} className={classes.p}>
 							<Grid item>
 								<Typography align="center" variant="h2">
 									5
@@ -249,13 +264,13 @@ function Homepage() {
 					</Grid>
 				</Box>
 				<Box pt={2} pb={{ xs: 4, sm: 3 }}>
-					<Grid container spacing={1} direction="row" justify="space-around" alignItems="center">
+					<Grid container direction="row" justify="space-around" alignItems="center">
 						<Grid item sm={5}>
 							<Box display="flex">
 								<img width="100%" src={desk} alt="Process AmplyStudio" />
 							</Box>
 						</Grid>
-						<Grid item align="center" container direction="column" spacing={3} sm={7}>
+						<Grid item align="center" container direction="column" sm={7} className={classes.p}>
 							<Grid item>
 								<Typography align="center" variant="h2">
 									6
@@ -272,7 +287,6 @@ function Homepage() {
 					</Grid>
 				</Box>
 			</section>
-
 			{/* the process steps ends */}
 			<Box pt={2} pb={2} align="center">
 				<Button variant="contained" color="primary">
@@ -375,8 +389,8 @@ function Homepage() {
 						Testimonials
 					</Typography>
 				</Box>
-				<Grid container align="center" direction="row">
-					<Grid item container sm={4} direction="column">
+				<Grid container align="center" direction="row" spacing={3}>
+					<Grid item container sm={12} md={4} direction="column">
 						<Grid item>
 							<img alt="testimonial" src={testimonial1} />
 						</Grid>
@@ -391,7 +405,7 @@ function Homepage() {
 							</Typography>
 						</Grid>
 					</Grid>
-					<Grid item container sm={4} direction="column">
+					<Grid item container sm={12} md={4} direction="column">
 						<Grid item>
 							<img alt="testimonial" src={testimonial2} />
 						</Grid>
@@ -405,7 +419,7 @@ function Homepage() {
 							</Typography>
 						</Grid>
 					</Grid>
-					<Grid container item sm={4} direction="column">
+					<Grid container item sm={12} md={4} direction="column">
 						<Grid item>
 							<img alt="testimonial" src={testimonial3} />
 						</Grid>
@@ -648,69 +662,71 @@ function Homepage() {
 				</Grid>
 			</section>
 			{/* offer price starts */}
-			<Grid
-				container
-				className={classes.heroText}
-				direction="column"
-				justify="center"
-				alignItems="center"
-			>
-				<Grid item align="center">
-					<Typography variant="h2">Offer- Rs 4999 (one time for full course)</Typography>
-					<Typography variant="h5">Contact us at 6280086334</Typography>
-					<Typography variant="h5">for more EMI payment info and</Typography>
-					<Typography variant="h5">discount coupons</Typography>
-					<Button variant="contained" color="primary">
-						Buy now
-					</Button>
+			<section id="after-price" className={classes.sectionContainer}>
+				<Grid
+					container
+					className={classes.heroText}
+					direction="column"
+					justify="center"
+					alignItems="center"
+				>
+					<Grid item align="center">
+						<Typography variant="h2">Offer- Rs 4999 (one time for full course)</Typography>
+						<Typography variant="h5">Contact us at 6280086334</Typography>
+						<Typography variant="h5">for more EMI payment info and</Typography>
+						<Typography variant="h5">discount coupons</Typography>
+						<Button variant="contained" color="primary">
+							Buy now
+						</Button>
+					</Grid>
 				</Grid>
-			</Grid>
-
+			</section>
 			{/* offer price ends */}
 			{/* faq starts */}
+			<section id="faqs" className={classes.sectionContainer}>
+				<Box align="center">
+					<Typography variant="h2">FAQ</Typography>
+				</Box>
 
-			<Box align="center">
-				<Typography variant="h2">FAQ</Typography>
-			</Box>
+				<Accordion>
+					<AccordionSummary
+						expandIcon={<ExpandMoreIcon />}
+						aria-controls="panel1a-content"
+						id="panel1a-header"
+					>
+						<Typography className={classes.heading}>How do I sign up?</Typography>
+					</AccordionSummary>
+					<AccordionDetails>
+						<Typography>Scroll above and click buy now button</Typography>
+					</AccordionDetails>
+				</Accordion>
+				<Accordion>
+					<AccordionSummary
+						expandIcon={<ExpandMoreIcon />}
+						aria-controls="panel2a-content"
+						id="panel2a-header"
+					>
+						<Typography className={classes.heading}>How do I cancel or change my order?</Typography>
+					</AccordionSummary>
+					<AccordionDetails>
+						<Typography>All sales are final. No refunds will be given.</Typography>
+					</AccordionDetails>
+				</Accordion>
 
-			<Accordion>
-				<AccordionSummary
-					expandIcon={<ExpandMoreIcon />}
-					aria-controls="panel1a-content"
-					id="panel1a-header"
-				>
-					<Typography className={classes.heading}>How do I sign up?</Typography>
-				</AccordionSummary>
-				<AccordionDetails>
-					<Typography>Scroll above and click buy now button</Typography>
-				</AccordionDetails>
-			</Accordion>
-			<Accordion>
-				<AccordionSummary
-					expandIcon={<ExpandMoreIcon />}
-					aria-controls="panel2a-content"
-					id="panel2a-header"
-				>
-					<Typography className={classes.heading}>How do I cancel or change my order?</Typography>
-				</AccordionSummary>
-				<AccordionDetails>
-					<Typography>All sales are final. No refunds will be given.</Typography>
-				</AccordionDetails>
-			</Accordion>
-
-			<Accordion>
-				<AccordionSummary
-					expandIcon={<ExpandMoreIcon />}
-					aria-controls="panel2a-content"
-					id="panel2a-header"
-				>
-					<Typography className={classes.heading}>How do I contact customer support?</Typography>
-				</AccordionSummary>
-				<AccordionDetails>
-					<Typography>Please drop us email at support@amplyation.com</Typography>
-				</AccordionDetails>
-			</Accordion>
-		</>
+				<Accordion>
+					<AccordionSummary
+						expandIcon={<ExpandMoreIcon />}
+						aria-controls="panel2a-content"
+						id="panel2a-header"
+					>
+						<Typography className={classes.heading}>How do I contact customer support?</Typography>
+					</AccordionSummary>
+					<AccordionDetails>
+						<Typography>Please drop us email at support@amplyation.com</Typography>
+					</AccordionDetails>
+				</Accordion>
+			</section>
+		</div>
 	);
 }
 

@@ -1,21 +1,26 @@
-
 html,
-body{
-	color: #0F172A;
-    margin: 0;
+body {
+	color: #0f172a;
+	margin: 0;
 	padding: 0;
 }
 #root,
-main{
+main {
 	height: inherit;
 }
+img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
 .amply-wrapper {
-    width: 100%;
-    padding-right: 1rem;
-    padding-left: 1rem;
+	/* width: 100%; */
+	padding-right: 1rem;
+	padding-left: 1rem;
 	margin-right: auto;
 	margin-top: 64px;
-    margin-left: auto;
+	margin-left: auto;
 }
 @media (min-width: 576px) {
 	.amply-wrapper {
