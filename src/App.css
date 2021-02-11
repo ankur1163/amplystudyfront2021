@@ -1,6 +1,7 @@
 html,
 body {
 	color: #0f172a;
+	height: 100%;
 	margin: 0;
 	padding: 0;
 }
@@ -19,8 +20,9 @@ img {
 	padding-right: 1rem;
 	padding-left: 1rem;
 	margin-right: auto;
-	margin-top: 64px;
+	/* margin-top: 64px; */
 	margin-left: auto;
+	height: 100%;
 }
 @media (min-width: 576px) {
 	.amply-wrapper {
