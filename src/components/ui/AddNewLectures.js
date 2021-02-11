@@ -66,6 +66,8 @@ const ADD_LECTURE = gql`
 				title
 				type
 				videoUrl
+				id
+				paid
 			}
 		}
 	}
@@ -80,9 +82,16 @@ export default function AddNewLectures(props) {
 		const newValues = parseInt(values.snumber);
 		values.snumber = newValues;
 		addLecturegraphql({ variables: values }).then(({ errors, data }) => {
-			return errors
-				? console.log('errors are ', errors)
-				: (console.log('data is', data), resetForm());
+
+			if(errors){
+				console.log(errors)
+			}
+			else {
+				props.afterAddingLecture(data.insert_lectures.returning[0]);
+				console.log("data after adding lecture is",data.insert_lectures.returning[0])
+				resetForm()
+			}
+			
 		});
 	};
 
