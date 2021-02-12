@@ -29,8 +29,8 @@ export default function InstructorEditLecture(props) {
 	videoUrl: "https://vimeo.com/451565367",
 	}]);
 
-	const { loading, error, data } = useQuery(GET_LECTURES);
-	const [getLectures,{loading:loadingLectures,data:dataLectures}]= useLazyQuery(GET_LECTURES);
+	const { loading, error, data } = useQuery(GET_LECTURES, {onCompleted:(data)=>console.log(data)});
+	const [getLectures,{loading:loadingLectures,data:dataLectures}]= useLazyQuery(GET_LECTURES,{onCompleted:(data)=>console.log(data)});
 	const [removeLectureMutation,{loading:loading2,data:data2}] = useMutation(DELETE_LECTURE)
 
   const removeLecture = (id) =>  {
@@ -55,13 +55,15 @@ export default function InstructorEditLecture(props) {
   console.log("removing lecture from cache done",cache)
 }
 
+
+
 	
 	useEffect(() => {
-		getLectures()
-// 		function initLectures() {
-// 		  getLectures()
-// 		}
-// 		initLectures()
+		
+		function initLectures() {
+ 		  getLectures()
+ 		}
+ 		initLectures()
   }, []);
 
   
@@ -143,16 +145,12 @@ export default function InstructorEditLecture(props) {
 
 
 	console.log('items now', items);
-	if(dataLectures) {
-		console.log("dataLectures",dataLectures)
-		setItems(dataLectures.lectures)
-
-	}
+	
 
 	return (
 		<>
 			{loading && <h1> loading...</h1>}
-			{data ? (
+			{dataLectures ? (
 				<Grid style={{ marginTop: '80px' }} container direction="row">
 					<Grid item sm={4}>
 						<SortableList
