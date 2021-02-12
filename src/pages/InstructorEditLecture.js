@@ -4,20 +4,22 @@ import arrayMove from 'array-move';
 import { Divider, Grid, Typography, Button } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { gql, useQuery,useLazyQuery,useMutation} from '@apollo/client';
+import { gql, useQuery,useLazyQuery,useMutation,cache} from '@apollo/client';
 import AddNewLectures from '../components/ui/AddNewLectures';
 import { GET_LECTURES } from '../graphqlApi/querys';
 
 
 const DELETE_LECTURE = gql`
-mutation MyMutation($id:String!) {
+mutation MyMutation($id:uuid!) {
 	delete_lectures(where: {id: {_eq: $id}}) {
 	  affected_rows
+	  
 	}
   }
 `;
 
 export default function InstructorEditLecture(props) {
+	const [lectureidToDelete,setlectureToDelete]= useState(null)
 	const [items, setItems] = useState([{description: "how to get started in virtual assistant world",
 	id: "c73ac038-22d1-4a8c-a342-c21997c9e480",
 	paid: false,
@@ -26,37 +28,60 @@ export default function InstructorEditLecture(props) {
 	type: "lecture",
 	videoUrl: "https://vimeo.com/451565367",
 	}]);
+
 	const { loading, error, data } = useQuery(GET_LECTURES);
 	const [getLectures,{loading:loadingLectures,data:dataLectures}]= useLazyQuery(GET_LECTURES);
-	const [deleteLecture, { loading: loading2, data:data2 }] = useMutation(DELETE_LECTURE);
+	const [removeLectureMutation,{loading:loading2,data:data2}] = useMutation(DELETE_LECTURE)
+
+  const removeLecture = (id) =>  {
+	  console.log("removing lecture from cache")
+	  //removeLectureMutation({variables:{id}})
+	  removeLectureMutation({
+    variables: { id },
+    update(cache) {
+		//what is root_query here
+      cache.modify('ROOT_QUERY', {
+		  //what is Lectures here? we are assigning a function , which is taking lectures
+		  // and readfield, i know readfield is to read some field in cache
+        Lectures: (lectures, {readField}) => {
+          // this should probably be a slice by index...
+          return lectures.filter(lecture => id !== readField('id', lecture))
+        },
+      });
+      cache.evict(`Lectures:${id}`);
+	  
+    },
+  });
+  console.log("removing lecture from cache done",cache)
+}
+
+	
 	useEffect(() => {
-		function initLectures() {
-		  getLectures()
-		}
-		initLectures()
+		getLectures()
+// 		function initLectures() {
+// 		  getLectures()
+// 		}
+// 		initLectures()
   }, []);
 
-  useEffect(() => {
-	  if (dataLectures) {
-		  setItems(dataLectures.lectures);
-	  }
-  }, [dataLectures]);
+  
+
+  
+	
+  
 
 	const handleLectureEdit = (lectureId) => {
 		console.log(lectureId);
 	};
 	const handleLectureDelete = (lectureId)=> {
 		console.log("handle delete",lectureId)
-		deleteLecture(lectureId);
-		if(data2){
-			console.log("lecture deleted")
-		}
-		const updatedItems = getLectures();
-		let newItems = items.filter(function(value,index,arr){
-			return value.id !== lectureId
-		})
-		setItems(updatedItems)
-		console.log("ends handle delete")
+		setlectureToDelete(lectureId);
+		//apollo function to remove lecture 
+		removeLecture(lectureId);
+		//apollo function to fetch lectures
+		getLectures()
+		
+		console.log("again getting lectures")
 	}
 
 	const SortableItem = SortableElement(({ idLecture, value, valueNumber }) => (
@@ -116,11 +141,11 @@ export default function InstructorEditLecture(props) {
 		setItems(arrayMove(items, oldIndex, newIndex));
 	};
 
-	console.log('loading is', loading);
-	console.log('error is', error);
-	console.log('data is', data);
+
 	console.log('items now', items);
-	if(data2) {
+	if(dataLectures) {
+		console.log("dataLectures",dataLectures)
+		setItems(dataLectures.lectures)
 
 	}
 
