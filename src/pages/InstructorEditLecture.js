@@ -29,7 +29,7 @@ export default function InstructorEditLecture(props) {
 	videoUrl: "https://vimeo.com/451565367",
 	}]);
 
-	const { loading, error, data } = useQuery(GET_LECTURES, {onCompleted:(data)=>console.log(data)});
+	const { loading, error, data } = useQuery(GET_LECTURES, {onCompleted:(data)=>{console.log("first fetch",data);setItems(data.lectures)}});
 	const [getLectures,{loading:loadingLectures,data:dataLectures}]= useLazyQuery(GET_LECTURES,{onCompleted:(data)=>console.log(data)});
 	const [removeLectureMutation,{loading:loading2,data:data2}] = useMutation(DELETE_LECTURE)
 
