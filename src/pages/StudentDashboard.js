@@ -23,11 +23,22 @@ import { useQuery } from '@apollo/client';
 import { GET_LECTURES } from '../graphqlApi/querys';
 
 const drawerWidth = 240;
+const initialLecture = [
+	{
+		title: 'No video is selected',
+		videoUrl: '',
+		description: '',
+		id: '',
+		paid: false,
+		snumber: 1,
+		type: 'lecture',
+		lectureTitle: '',
+		text: '',
+		doneStatus: false,
+	},
+];
 
 const useStyles = makeStyles((theme) => ({
-	root: {
-		display: 'flex',
-	},
 	appBar: {
 		[theme.breakpoints.up('sm')]: {
 			width: `calc(100% - ${drawerWidth}px)`,
@@ -52,21 +63,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function StudentDashboard(props) {
-	const initialLecture = [
-		{
-			title: 'No video is selected',
-			videoUrl: '',
-			description: '',
-			id: '',
-			paid: false,
-			snumber: 1,
-			type: 'lecture',
-			lectureTitle: '',
-			text: '',
-			doneStatus: false,
-		},
-	];
-
 	const classes = useStyles();
 	const [mobileOpen, setMobileOpen] = useState(false);
 	const { loading, error, data = {} } = useQuery(GET_LECTURES);
@@ -74,6 +70,7 @@ function StudentDashboard(props) {
 	const [currentLectureDetails, setCurrentLectureDetails] = useState(initialLecture);
 
 	useEffect(() => {
+		console.log(lectures);
 		if (lectures.length !== 0) {
 			setCurrentLectureDetails(lectures[0]);
 		}
@@ -92,7 +89,7 @@ function StudentDashboard(props) {
 	};
 
 	return (
-		<main className={classes.root}>
+		<>
 			<CssBaseline />
 			<nav className={classes.drawer} aria-label="mailbox folders">
 				<Drawer
@@ -101,11 +98,11 @@ function StudentDashboard(props) {
 					onLectureClick={handleLectureClick}
 				/>
 			</nav>
-			<div className="amply-wrapper">
+			<div className="amply-wrapper view-wrapper">
 				<StudentLectureVideo {...currentLectureDetails} />
 				<ShowComments lectureId={currentLectureDetails.id} />
 			</div>
-		</main>
+		</>
 	);
 }
 

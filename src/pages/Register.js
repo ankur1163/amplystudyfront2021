@@ -15,8 +15,7 @@ const useStyles = makeStyles((theme) => ({
 		margin: '0 0.5rem',
 	},
 	loginContainer: {
-		display: 'table',
-		height: '100%',
+		height: '100vh',
 	},
 	loginForm: {
 		display: 'table-cell',

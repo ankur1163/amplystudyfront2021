@@ -3,13 +3,13 @@ import { gql } from '@apollo/client';
 export const GET_LECTURES = gql`
 	query MyQuery {
 		lectures {
-			title
-			videoUrl
 			description
 			id
 			paid
 			snumber
+			title
 			type
+			videoUrl
 		}
 	}
 `;

@@ -1,53 +1,50 @@
-import React, { createContext, useEffect, useContext, useState } from 'react';
+import { createContext, useEffect, useContext, useState } from 'react';
 import { useHistory, Route, Redirect } from 'react-router-dom';
-import { decode } from '../util/token';
+import { getSession, removeSession } from '../util/storage';
 
 export const authContext = createContext(null);
 
-export function AuthProvider({ children }) {
+export function AuthProvider(props) {
+	const { children } = props;
 	const initialState = {
-		isUserLogged: Boolean(localStorage.getItem('user_token')),
+		isUserLogged: false,
 		userName: '',
 		userId: '',
 		userEmail: '',
 	};
 	const [userProfile, setUserProfile] = useState(() => initialState);
 	const history = useHistory();
+	const existSessionActive = getSession('user');
+	const existToken = getSession('token', 'single');
 
 	useEffect(() => {
-		const existSessionActive = localStorage.getItem('user_token');
-
-		if (existSessionActive) {
-			updateUserProfile(existSessionActive);
-		} else {
+		if (!existSessionActive.isUserLogged || !existToken) {
 			history.replace('/');
+		} else {
+			updateUserProfile(existSessionActive);
 		}
 	}, []);
 
 	const updateUserProfile = (session) => {
-		
-		const name = localStorage.getItem("name");
-		const user_id = localStorage.getItem("userId");
-		const role = localStorage.getItem("role");
-		const email = localStorage.getItem("email");
-		setUserProfile({
-			...initialState,
-			//userName: name,
-			userId: user_id,
-			userEmail: email,
-			role:role
-		});
+		setUserProfile(session);
+		handleRedirectByRole();
+	};
+
+	const handleRedirectByRole = () => {
+		const { role } = existSessionActive;
+		if (role === 'admin') {
+			history.replace('/instructordashboard');
+		}
+		if (role === 'user') {
+			history.replace('/studentdashboard');
+		}
 	};
 
 	const signOut = () => {
-		localStorage.removeItem('user_token');
-		setUserProfile({
-			isUserLogged: false,
-			userName: '',
-			userId: '',
-			userEmail: '',
-		});
-		history.replace('/login');
+		removeSession('token');
+		removeSession('user');
+		setUserProfile(initialState);
+		history.replace('/');
 	};
 
 	return (

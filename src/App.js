@@ -9,10 +9,13 @@ import Homepage from './pages/Homepage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import { AuthProvider } from './auth/AuthContext';
+import PrivateRoute from './pages/PrivateRoute';
 import StudentDashboard from './pages/StudentDashboard';
 import InstructorDashboard from './pages/InstructorDashboard';
 import InstructorEditLecture from './pages/InstructorEditLecture';
 import envConfig from './config/envConfig';
+import { getSession } from './util/storage';
+
 import './App.css';
 
 const httpLink = createHttpLink({
@@ -21,18 +24,18 @@ const httpLink = createHttpLink({
 
 const authLink = setContext(({ operationName }, prevCtx) => {
 	const publicOperations = ['Signin', 'Signup'];
-	console.log('operationname', operationName);
-	const token = localStorage.getItem('user_token');
+	const accessToken = getSession('token', 'single');
+	const { role = 'user' } = getSession('user');
 	const headers = {
 		...prevCtx.header,
 	};
 
-	if (token === undefined || token === null || token === '') {
-		console.info('token not found', token);
+	if (!accessToken) {
+		console.info('accessToken not found', accessToken);
 		return;
 	}
-	console.info('token found');
-	headers.authorization = `Bearer ${token}`;
+	headers.authorization = `Bearer ${accessToken}`;
+	headers['X-Hasura-Role'] = role;
 
 	return { headers };
 });
@@ -40,6 +43,19 @@ const authLink = setContext(({ operationName }, prevCtx) => {
 const client = new ApolloClient({
 	cache: new InMemoryCache(),
 	link: authLink.concat(httpLink),
+	defaultOptions: {
+		watchQuery: {
+			fetchPolicy: 'cache-and-network',
+			errorPolicy: 'ignore',
+		},
+		query: {
+			fetchPolicy: 'network-only',
+			errorPolicy: 'all',
+		},
+		mutate: {
+			errorPolicy: 'all',
+		},
+	},
 });
 
 function App() {
@@ -53,10 +69,11 @@ function App() {
 							<Route exact path="/" component={Homepage} />
 							<Route path="/login" component={Login} />
 							<Route path="/register" component={Register} />
-							<Route path="/studentdashboard" component={StudentDashboard} />
+							<PrivateRoute path="/:rolePage" />
+							{/* <Route path="/studentdashboard" component={StudentDashboard} />
 							<Route path="/instructordashboard" component={InstructorDashboard} />
 							<Route path="/instructoreditlecture" component={InstructorEditLecture} />
-							<Route path="/paymentcompleted" component={() => <h1>payment completed</h1>} />
+							<Route path="/paymentcompleted" component={() => <h1>payment completed</h1>} /> */}
 							<Route path="*" component={Homepage} />
 						</Switch>
 						<Footer />

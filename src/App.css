@@ -1,13 +1,16 @@
-html,
+html {
+	height: 100%;
+}
 body {
 	color: #0f172a;
-	height: 100%;
 	margin: 0;
 	padding: 0;
+	height: inherit;
 }
 #root,
 main {
-	height: inherit;
+	/* height: inherit; */
+	position: relative;
 }
 img {
 	display: block;
@@ -15,8 +18,11 @@ img {
 	height: 100%;
 	object-fit: contain;
 }
+.view-wrapper {
+	padding-top: 64px;
+}
 .amply-wrapper {
-	/* width: 100%; */
+	width: 100%;
 	padding-right: 1rem;
 	padding-left: 1rem;
 	margin-right: auto;
