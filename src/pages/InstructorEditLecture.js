@@ -43,6 +43,13 @@ export default function InstructorEditLecture(props) {
 	);
 	const [removeLectureMutation, { loading: loading2, data: data2 }] = useMutation(DELETE_LECTURE);
 
+	useEffect(() => {
+		function initLectures() {
+			getLectures();
+		}
+		initLectures();
+	}, []);
+
 	const removeLecture = (id) => {
 		console.log('removing lecture from cache');
 		//removeLectureMutation({variables:{id}})
@@ -63,13 +70,6 @@ export default function InstructorEditLecture(props) {
 		});
 		console.log('removing lecture from cache done', cache);
 	};
-
-	useEffect(() => {
-		function initLectures() {
-			getLectures();
-		}
-		initLectures();
-	}, []);
 
 	const handleLectureEdit = (lectureId) => {
 		console.log(lectureId);

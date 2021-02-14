@@ -27,18 +27,18 @@ export function AuthProvider(props) {
 
 	const updateUserProfile = (session) => {
 		setUserProfile(session);
-		handleRedirectByRole();
+		// handleRedirectByRole();
 	};
 
-	const handleRedirectByRole = () => {
-		const { role } = existSessionActive;
-		if (role === 'admin') {
-			history.replace('/instructordashboard');
-		}
-		if (role === 'user') {
-			history.replace('/studentdashboard');
-		}
-	};
+	// const handleRedirectByRole = () => {
+	// 	const { role } = existSessionActive;
+	// 	if (role === 'admin') {
+	// 		history.replace('/instructordashboard');
+	// 	}
+	// 	if (role === 'user') {
+	// 		history.replace('/studentdashboard');
+	// 	}
+	// };
 
 	const signOut = () => {
 		removeSession('token');
