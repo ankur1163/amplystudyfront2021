@@ -4,12 +4,12 @@ import arrayMove from 'array-move';
 import { Divider, Grid, Typography, Button } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { gql, useQuery, useLazyQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useLazyQuery, useMutation, cache } from '@apollo/client';
 import AddNewLectures from '../components/ui/AddNewLectures';
 import { GET_LECTURES } from '../graphqlApi/querys';
 
 const DELETE_LECTURE = gql`
-	mutation MyMutation($id: String!) {
+	mutation MyMutation($id: uuid!) {
 		delete_lectures(where: { id: { _eq: $id } }) {
 			affected_rows
 		}
@@ -17,6 +17,7 @@ const DELETE_LECTURE = gql`
 `;
 
 export default function InstructorEditLecture(props) {
+	const [lectureidToDelete, setlectureToDelete] = useState(null);
 	const [items, setItems] = useState([
 		{
 			description: 'how to get started in virtual assistant world',
@@ -28,11 +29,41 @@ export default function InstructorEditLecture(props) {
 			videoUrl: 'https://vimeo.com/451565367',
 		},
 	]);
-	const { loading, error, data } = useQuery(GET_LECTURES);
+
+	const { loading, error, data } = useQuery(GET_LECTURES, {
+		onCompleted: (data) => {
+			console.log('first fetch', data);
+			setItems(data.lectures);
+		},
+		fetchPolicy: 'network-only',
+	});
 	const [getLectures, { loading: loadingLectures, data: dataLectures }] = useLazyQuery(
-		GET_LECTURES
+		GET_LECTURES,
+		{ onCompleted: (data) => console.log(data) }
 	);
-	const [deleteLecture, { loading: loading2, data: data2 }] = useMutation(DELETE_LECTURE);
+	const [removeLectureMutation, { loading: loading2, data: data2 }] = useMutation(DELETE_LECTURE);
+
+	const removeLecture = (id) => {
+		console.log('removing lecture from cache');
+		//removeLectureMutation({variables:{id}})
+		removeLectureMutation({
+			variables: { id },
+			update(cache) {
+				//what is root_query here
+				cache.modify('ROOT_QUERY', {
+					//what is Lectures here? we are assigning a function , which is taking lectures
+					// and readfield, i know readfield is to read some field in cache
+					Lectures: (lectures, { readField }) => {
+						// this should probably be a slice by index...
+						return lectures.filter((lecture) => id !== readField('id', lecture));
+					},
+				});
+				cache.evict(`Lectures:${id}`);
+			},
+		});
+		console.log('removing lecture from cache done', cache);
+	};
+
 	useEffect(() => {
 		function initLectures() {
 			getLectures();
@@ -40,38 +71,18 @@ export default function InstructorEditLecture(props) {
 		initLectures();
 	}, []);
 
-	useEffect(() => {
-		if (dataLectures) {
-			setItems(dataLectures.lectures);
-		}
-	}, [dataLectures]);
-
 	const handleLectureEdit = (lectureId) => {
 		console.log(lectureId);
 	};
 	const handleLectureDelete = (lectureId) => {
 		console.log('handle delete', lectureId);
-		deleteLecture(lectureId);
-		if (data2) {
-			console.log('lecture deleted');
-		}
-		const updatedItems = getLectures();
-		let newItems = items.filter(function (value, index, arr) {
-			return value.id !== lectureId;
-		});
-		setItems(updatedItems);
-		console.log('ends handle delete');
-	};
+		setlectureToDelete(lectureId);
+		//apollo function to remove lecture
+		removeLecture(lectureId);
+		//apollo function to fetch lectures
+		getLectures();
 
-	const afterAddingLectureHandler = (data) => {
-		console.log('after adding lecture parent function', data);
-		const newData = [...items, data];
-		console.log(newData, 'newData');
-		setItems(newData);
-	};
-
-	const handleDeleteClick = (lectureId) => {
-		console.log('handle delete', lectureId);
+		console.log('again getting lectures');
 	};
 
 	const SortableItem = SortableElement(({ idLecture, value, valueNumber }) => (
@@ -95,11 +106,6 @@ export default function InstructorEditLecture(props) {
 				color="primary"
 				style={{ cursor: 'pointer', padding: '0.5rem' }}
 				onClick={() => handleLectureDelete(idLecture)}
-			/>
-			<DeleteIcon
-				color="primary"
-				style={{ cursor: 'pointer', padding: '0.5rem' }}
-				onClick={() => handleDeleteClick(idLecture)}
 			/>
 		</li>
 	));
@@ -131,23 +137,17 @@ export default function InstructorEditLecture(props) {
 	if (error) return `Error! ${error.message}`;
 
 	const onSortEnd = ({ oldIndex, newIndex }) => {
-		console.log('on sort end');
 		console.log('on sort end', oldIndex, newIndex);
 		document.body.style.cursor = 'default';
 		setItems(arrayMove(items, oldIndex, newIndex));
 	};
 
-	console.log('loading is', loading);
-	console.log('error is', error);
-	console.log('data is', data);
 	console.log('items now', items);
-	if (data2) {
-	}
 
 	return (
 		<>
 			{loading && <h1> loading...</h1>}
-			{data ? (
+			{dataLectures ? (
 				<Grid style={{ marginTop: '80px' }} container direction="row">
 					<Grid item sm={4}>
 						<SortableList
@@ -156,13 +156,10 @@ export default function InstructorEditLecture(props) {
 							onSortEnd={onSortEnd}
 							distance={2}
 						/>
-						<AddNewLectures afterAddingLecture={afterAddingLectureHandler} />
+						<AddNewLectures />
 					</Grid>
-					<Grid item sm={8}>
-						this is great whats the awesome and its amazing. These are great things to do. This is
-						great and this is okish. Lets do it again and lets go to the hill, descend it. I am sure
-						things will be ok
-					</Grid>
+					<Grid item sm={8}></Grid>
+					<Grid item></Grid>
 				</Grid>
 			) : null}
 		</>
