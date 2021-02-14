@@ -7,7 +7,8 @@ import * as Yup from 'yup';
 import gql from 'graphql-tag';
 import { useMutation, useLazyQuery, useQuery } from '@apollo/client';
 import { authContext } from '../auth/AuthContext';
-import { decode } from '../util/token';
+import { SIGN_IN } from '../graphqlApi/mutations';
+import { setSession } from '../util/storage';
 
 const useStyles = makeStyles((theme) => ({
 	loginLink: {
@@ -17,8 +18,8 @@ const useStyles = makeStyles((theme) => ({
 		margin: '0 0.5rem',
 	},
 	loginContainer: {
-		display: 'table',
-		height: '100%',
+		display: 'flex',
+		height: '100vh',
 	},
 	loginForm: {
 		display: 'table-cell',
@@ -31,18 +32,9 @@ const initialValues = {
 	password: '',
 };
 
-const SIGNIN_MUTATION = gql`
-	mutation Signin($email: String!, $password: String!) {
-		login(credentials: { email: $email, password: $password }) {
-			accessToken
-			id
-		}
-	}
-`;
-
 const CHECK_ROLE_AFTER_SIGNIN = gql`
-	query user($id: String) {
-		user(where: { id: { _eq: $id } }) {
+	query user($id: String!) {
+		user_by_pk(id: $id) {
 			id
 			role
 		}
@@ -56,79 +48,66 @@ const validationSchema = Yup.object().shape({
 function Login(props) {
 	const classes = useStyles();
 	const history = useHistory();
-	const userDataRef = useRef(null);
 	const { setUserProfile } = useContext(authContext);
 
-	const [login, { loading }] = useMutation(SIGNIN_MUTATION);
-	const [checkRole, { loading: loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN, {
-		fetchPolicy: 'no-cache',
-	});
+	const [login, { loading, data: dataLogin, error: errorLogin }] = useMutation(SIGN_IN);
+	const [checkRole, { loading: loading2, data: user, error: errorCheckingRole }] = useLazyQuery(
+		CHECK_ROLE_AFTER_SIGNIN,
+		{
+			fetchPolicy: 'no-cache',
+		}
+	);
 
 	useEffect(() => {
-		if (data) {
-			console.log('checkrole', data);
-			localStorage.setItem('role', data.user[0].role);
-			// Go to this function to set user data to authContext and localStorage
-			initUserData(data);
-			if (data.user[0].role === 'admin') {
-				history.push('/instructordashboard');
-			} else {
-				history.push('/studentdashboard');
-			}
-		} else {
-			console.log('no data');
+		if (user) {
+			initUserProfile();
 		}
-	}, [data]);
+		if (errorCheckingRole) {
+			throw new Error(errorCheckingRole);
+		}
+	}, [user, errorCheckingRole]);
 
-	const initUserData = (data) => {
-		//const { name, user_id, email } = userDataRef.current;
+	useEffect(() => {
+		if (dataLogin) {
+			handleSuccessLogin();
+		}
+		if (errorLogin) {
+			throw new Error(errorLogin);
+		}
+	}, [dataLogin, errorLogin]);
 
-		// You can use 'data' hereuser[0].role
+	const handleSuccessLogin = () => {
+		const { id, accessToken } = dataLogin.login;
+		setSession('token', accessToken, 'single');
+		checkRole({ variables: { id } });
+	};
 
-		setUserProfile({
+	const handleRedirectByRole = () => {
+		const { role } = user.user_by_pk;
+		if (role === 'admin') {
+			history.replace('/instructordashboard');
+		}
+		if (role === 'user') {
+			history.replace('/studentdashboard');
+		}
+	};
+	const initUserProfile = () => {
+		const { id, accessToken } = dataLogin.login;
+		const { role } = user.user_by_pk;
+
+		const userProfile = {
 			isUserLogged: true,
-			userName: data.user[0].name,
-			userId: data.user[0].user_id,
-			userEmail: data.user[0].email,
-			role: data.user[0].role,
-		});
+			userId: id,
+			role: role,
+			accessToken,
+		};
 
-		// localStorage.setItem('userToken', login.accessToken);
-		// localStorage.setItem('userId', user_id);
-
-		// setUserProfile({
-		// 	isUserLogged: true,
-		// 	userName: name,
-		// 	userId: user_id,
-		// 	userEmail: email,
-		// });
-
-		// history.push('/studentdashboard');
+		setUserProfile(userProfile);
+		setSession('user', userProfile);
+		handleRedirectByRole();
 	};
-
-	const afterLogin = ({ login }) => {
-		console.log('login is', login);
-		localStorage.setItem('user_token', login.accessToken);
-		localStorage.setItem('userId', login.id);
-		const user_id = login.id;
-		checkRole({ variables: { id: user_id } });
-
-		// if(data){
-		// 	if(data.user[0].role==="user"){
-		// 		console.log("user is user")
-		// 	}
-		// 	else if (data.user[0].role==="admin"){
-		// 		console.log("its admin")
-		// 	}
-
-		// }
-	};
-	const signinHandler = (values) => {
-		console.log('values for sign in', values);
-		login({ variables: values }).then(({ errors, data }) => {
-			console.log('login auth ', data);
-			return errors ? console.error(errors) : afterLogin(data);
-		});
+	const handleSignin = (values) => {
+		login({ variables: values });
 	};
 
 	return (
@@ -140,8 +119,10 @@ function Login(props) {
 				justify="center"
 				className={classes.loginContainer}
 			>
-				{loading && <CircularProgress color="primary" />}
-				{!loading && (
+				{((!loading && dataLogin) || (loading && !dataLogin)) && (
+					<CircularProgress color="primary" />
+				)}
+				{!loading && !dataLogin && (
 					<div className={classes.loginForm}>
 						<Box>
 							<Typography variant="h6">Sign in</Typography>
@@ -149,7 +130,7 @@ function Login(props) {
 
 						<Formik
 							initialValues={initialValues}
-							onSubmit={signinHandler}
+							onSubmit={handleSignin}
 							validationSchema={validationSchema}
 						>
 							{({

@@ -53,14 +53,18 @@ export default function Header(props) {
 					{!isUserLogged && (
 						<>
 							<Box>
-								<Link className={classes.menuButton} to="/login">
-									Login
+								<Link className={classes.menuButton} to="/register">
+									Become an Instructor
 								</Link>
 							</Box>
-
+							<Box>
+								<Link className={classes.menuButton} to="/login">
+									Log in
+								</Link>
+							</Box>
 							<Box>
 								<Link className={classes.menuButton} to="/register">
-									Register
+									Sign up
 								</Link>
 							</Box>
 						</>
