@@ -33,3 +33,11 @@ export const ADD_COMMENT = gql`
 		}
 	}
 `;
+
+export const DELETE_LECTURE = gql`
+	mutation MyMutation($id: uuid!) {
+		delete_lectures(where: { id: { _eq: $id } }) {
+			affected_rows
+		}
+	}
+`;

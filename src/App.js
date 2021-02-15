@@ -33,6 +33,7 @@ const authLink = setContext(({ operationName }, prevCtx) => {
 	}
 	console.info('token found');
 	headers.authorization = `Bearer ${token}`;
+	headers['X-Hasura-Role'] = 'user';
 
 	return { headers };
 });
