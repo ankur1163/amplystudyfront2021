@@ -18,14 +18,14 @@ const client = new ApolloClient({
 	defaultOptions: {
 		watchQuery: {
 			fetchPolicy: 'cache-and-network',
-			errorPolicy: 'ignore',
+			errorPolicy: 'all',
 		},
 		query: {
 			fetchPolicy: 'network-only',
-			errorPolicy: 'ignore',
+			errorPolicy: 'all',
 		},
 		mutate: {
-			errorPolicy: 'ignore',
+			errorPolicy: 'all',
 		},
 	},
 });
