@@ -1,39 +1,9 @@
-import React from 'react';
-import { Grid, Typography } from '@material-ui/core';
-import PropTypes from 'prop-types';
-import {
-	AppBar,
-	CssBaseline,
-	Divider,
-	Drawer,
-	Hidden,
-	List,
-	ListItem,
-	ListItemIcon,
-	ListItemText,
-	Toolbar,
-} from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
-import MenuIcon from '@material-ui/icons/Menu';
+import React, { useState } from 'react';
+import Drawer from '../components/Drawer/Drawer';
 import InstructorLecturesDisplay from '../components/ui/InstructorLecturesDisplay';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import { gql, useQuery } from '@apollo/client';
-
-const GET_LECTURES = gql`
-	query MyQuery {
-		lectures {
-			title
-			videoUrl
-			description
-			id
-			paid
-			snumber
-			type
-		}
-	}
-`;
+import { makeStyles } from '@material-ui/core/styles';
+import { GET_LECTURES } from '../graphqlApi/queries';
+import { useQuery } from '@apollo/client';
 
 const drawerWidth = 240;
 
@@ -72,101 +42,29 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function InstructorDashboard(props) {
-	const { window } = props;
 	const classes = useStyles();
-	const theme = useTheme();
-	const [mobileOpen, setMobileOpen] = React.useState(false);
+	const [mobileOpen, setMobileOpen] = useState(false);
+	const { loading: loadingLectures, error: errorLectures, data: dataLectures = {} } = useQuery(
+		GET_LECTURES
+	);
+	const { lectures = [] } = dataLectures;
 
-	const handleDrawerToggle = () => {
+	const handleToggleDrawer = () => {
 		setMobileOpen(!mobileOpen);
 	};
-	const { loading, error, data } = useQuery(GET_LECTURES);
 
-	if (loading) return 'Loading...';
+	if (loadingLectures) return 'Loading...';
+	if (errorLectures) return `Error! ${errorLectures.message}`;
 
-	if (error) return `Error! ${error.message}`;
-	console.log('data is', data);
-
-	//   <ListItem button key="lecturessidebar">
-
-	//   <ListItemIcon><InboxIcon /></ListItemIcon>
-	//   <ListItemText primary="Lectures" />
-	// </ListItem>
-	// <ListItem button key="reportssidebar">
-	//   <ListItemIcon><InboxIcon /></ListItemIcon>
-	//   <ListItemText primary="Reports" />
-	// </ListItem>
-
-	const drawer = (
-		<div>
-			<div className={classes.toolbar} />
-			<Divider />
-			<List>
-				{data.lectures.map((text, index) => (
-					<ListItem button key={index}>
-						<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-						<ListItemText primary={text.title} />
-					</ListItem>
-				))}
-			</List>
-		</div>
-	);
-
-	const container = window !== undefined ? () => window().document.body : undefined;
 	return (
 		<div className={classes.root}>
-			<CssBaseline />
-			<AppBar position="fixed" className={classes.appBar}>
-				<Toolbar>
-					<IconButton
-						color="inherit"
-						aria-label="open drawer"
-						edge="start"
-						onClick={handleDrawerToggle}
-						className={classes.menuButton}
-					>
-						<MenuIcon />
-					</IconButton>
-					<Typography variant="h6" noWrap>
-						Responsive drawer
-					</Typography>
-				</Toolbar>
-			</AppBar>
 			<nav className={classes.drawer} aria-label="mailbox folders">
-				{/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-				<Hidden smUp implementation="css">
-					<Drawer
-						container={container}
-						variant="temporary"
-						anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-						open={mobileOpen}
-						onClose={handleDrawerToggle}
-						classes={{
-							paper: classes.drawerPaper,
-						}}
-						ModalProps={{
-							keepMounted: true, // Better open performance on mobile.
-						}}
-					>
-						{drawer}
-					</Drawer>
-				</Hidden>
-				<Hidden xsDown implementation="css">
-					<Drawer
-						classes={{
-							paper: classes.drawerPaper,
-						}}
-						variant="permanent"
-						open
-					>
-						{drawer}
-					</Drawer>
-				</Hidden>
+				<Drawer lectures={lectures} onToggleDrawer={handleToggleDrawer} />
 			</nav>
-			<main className={classes.content}>
+			<div className="amply-wrapper view-wrapper">
 				<div className={classes.toolbar} />
 				<InstructorLecturesDisplay />
-			</main>
+			</div>
 		</div>
 	);
 }

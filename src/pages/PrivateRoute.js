@@ -1,7 +1,7 @@
 import { lazy, Fragment, Suspense } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { CircularProgress } from '@material-ui/core';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { getSession, removeSession } from '../util/storage';
 import { getPathnameView, extractComponentName } from '../util/location';
 

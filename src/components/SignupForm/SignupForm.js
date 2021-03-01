@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
+import {
+	Box,
+	Collapse,
+	CircularProgress,
+	Typography,
+	TextField,
+	Button,
+	Grid,
+} from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { Box, Typography, TextField, Button, Grid } from '@material-ui/core';
-import gql from 'graphql-tag';
 import { useMutation } from '@apollo/client';
+import { SIGN_UP_MUTATION, INSERT_USER_MUTATION } from '../../graphqlApi/mutations';
 
 const useStyles = makeStyles((theme) => ({
 	loginLink: {
@@ -17,9 +26,21 @@ const useStyles = makeStyles((theme) => ({
 	loginContainer: {
 		height: '100vh',
 	},
-	loginForm: {
+	signupForm: {
 		display: 'table-cell',
 		verticalAlign: 'middle',
+		width: '325px',
+	},
+	wrapper: {
+		margin: theme.spacing(1),
+		position: 'relative',
+	},
+	buttonProgress: {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		marginTop: -12,
+		marginLeft: -12,
 	},
 }));
 
@@ -29,41 +50,53 @@ const initialValues = {
 	password: '',
 };
 
-const SIGN_UP_MUTATION = gql`
-	mutation Signup($email: String!, $password: String!, $displayName: String!) {
-		create_user(credentials: { email: $email, password: $password, displayName: $displayName }) {
-			displayName
-			email
-			id
-		}
-	}
-`;
-
 const validationSchema = Yup.object().shape({
 	displayName: Yup.string().required('This field is required'),
 	email: Yup.string().email('it should be an email').required('This field is required'),
 	password: Yup.string().required('This field is required'),
 });
 
-function Register(props) {
+function SignupForm({ role }) {
 	const classes = useStyles();
-	const [create_user, { loading }] = useMutation(SIGN_UP_MUTATION);
-	let history = useHistory();
+	const history = useHistory();
+	const [errors, setErrors] = useState('');
+	const [
+		create_user,
+		{ loading: loadingNewUser, data: dataNewUser, error: errorNewUser },
+	] = useMutation(SIGN_UP_MUTATION);
+	const [insert_user, { loading: loadingInsertUser }] = useMutation(INSERT_USER_MUTATION);
 
-	const signupHandler = async (values) => {
-		create_user({
-			variables: values,
+	useEffect(() => {
+		if (dataNewUser) {
+			handleInsertUser();
+		}
+		if (errorNewUser) {
+			handleError(errorNewUser);
+		}
+	}, [dataNewUser, errorNewUser]);
+
+	const handleError = (errors) => {
+		setErrors(errors.message);
+		setTimeout(() => setErrors(''), 5000);
+	};
+
+	const handleInsertUser = async () => {
+		const { id } = dataNewUser.create_user;
+		insert_user({
+			variables: { id, role },
 		})
-			.then(({ error }) => {
-				if (error) {
-					console.warn('error is ', error);
-				} else {
-					history.push('/signin');
-				}
+			.then(() => {
+				history.replace('/login');
 			})
 			.catch((error) => {
-				console.warn(error);
+				console.error(error);
 			});
+	};
+
+	const signupHandler = async (values) => {
+		await create_user({
+			variables: values,
+		});
 	};
 
 	return (
@@ -76,7 +109,17 @@ function Register(props) {
 				justify="center"
 				className={classes.loginContainer}
 			>
-				<div className={classes.loginForm}>
+				<div className={classes.signupForm}>
+					<Collapse in={Boolean(errors)}>
+						<Box my={2}>
+							{errors && (
+								<Alert variant="filled" severity="error">
+									<AlertTitle>Error</AlertTitle>
+									{errors}
+								</Alert>
+							)}
+						</Box>
+					</Collapse>
 					<Typography variant="h6">Create account</Typography>
 
 					<Formik
@@ -108,11 +151,12 @@ function Register(props) {
 										fullWidth
 									/>
 								</Box>
-
 								<Box>
 									<TextField
 										label="Email"
 										name="email"
+										autoComplete="username"
+										value={values.email}
 										onChange={handleChange}
 										onBlur={handleBlur}
 										error={touched.email && errors.email}
@@ -121,12 +165,13 @@ function Register(props) {
 										fullWidth
 									/>
 								</Box>
-
 								<Box>
 									<TextField
 										type="password"
 										label="password"
 										name="password"
+										autoComplete="new-password"
+										value={values.password}
 										onChange={handleChange}
 										onBlur={handleBlur}
 										error={touched.password && errors.password}
@@ -136,9 +181,19 @@ function Register(props) {
 									/>
 								</Box>
 								<Box display="flex" justifyContent="space-around" mt={2} mb={4}>
-									<Button variant="contained" color="primary" type="submit">
-										Sign up
-									</Button>
+									<div className={classes.wrapper}>
+										<Button
+											variant="contained"
+											color="primary"
+											type="submit"
+											disabled={loadingNewUser || loadingInsertUser}
+										>
+											Sign up
+										</Button>
+										{(loadingNewUser || loadingInsertUser) && (
+											<CircularProgress size={24} className={classes.buttonProgress} />
+										)}
+									</div>
 								</Box>
 								<Box>
 									<Typography variant="body2" color="textSecondary">
@@ -157,4 +212,4 @@ function Register(props) {
 	);
 }
 
-export default Register;
+export default SignupForm;

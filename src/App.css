@@ -1,11 +1,22 @@
 html {
 	height: 100%;
+	font-size: 16px;
+	font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+	font-weight: normal;
+	-webkit-text-size-adjust: 100%;
+	-ms-text-size-adjust: 100%;
+	-ms-overflow-style: scrollbar;
+	-webkit-tap-highlight-color: transparent;
 }
 body {
+	background: #eceef3;
 	color: #0f172a;
 	margin: 0;
 	padding: 0;
 	height: inherit;
+	-webkit-text-size-adjust: 100%;
+	-moz-osx-font-smoothing: grayscale !important;
+	-webkit-font-smoothing: antialiased !important;
 }
 #root,
 main {
@@ -17,6 +28,11 @@ img {
 	width: 100%;
 	height: 100%;
 	object-fit: contain;
+}
+textarea {
+	font-size: 1rem;
+	color: #334155;
+	font-family: inherit;
 }
 .view-wrapper {
 	padding-top: 64px;
@@ -30,24 +46,19 @@ img {
 	margin-left: auto;
 	height: 100%;
 }
-@media (min-width: 576px) {
+@media (min-width: 600px) {
 	.amply-wrapper {
 		max-width: 540px;
 	}
 }
-@media (min-width: 768px) {
+@media (min-width: 960px) {
 	.amply-wrapper {
-		max-width: 720px;
+		max-width: 950px;
 	}
 }
-@media (min-width: 992px) {
+@media (min-width: 1280px) {
 	.amply-wrapper {
-		max-width: 968px;
-	}
-}
-@media (min-width: 1200px) {
-	.amply-wrapper {
-		max-width: 1140px;
+		max-width: 1240px;
 	}
 }
 @media (min-width: 1366px) {

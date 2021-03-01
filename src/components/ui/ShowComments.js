@@ -1,101 +1,176 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { Box, Button, Grid, Typography } from '@material-ui/core';
-import { gql, useMutation, useQuery, useLazyQuery } from '@apollo/client';
-import { authContext } from '../../auth/AuthContext';
-import { SHOW_COMMENTS } from '../../graphqlApi/querys';
+import React, { Fragment, useEffect, useState } from 'react';
+import {
+	Badge,
+	Box,
+	Button,
+	Divider,
+	List,
+	ListItem,
+	ListItemText,
+	ListItemSecondaryAction,
+	IconButton,
+	Typography,
+	CircularProgress,
+} from '@material-ui/core';
+import ForumIcon from '@material-ui/icons/Forum';
+import { makeStyles } from '@material-ui/core/styles';
+import { useMutation, useLazyQuery } from '@apollo/client';
+import { formatDistance } from 'date-fns';
+import { GET_COMMENTS_BY_LECTURE } from '../../graphqlApi/queries';
 import { ADD_COMMENT } from '../../graphqlApi/mutations';
 
-export default function ShowComments({ lectureId }) {
-	const { userProfile } = useContext(authContext);
-	const [showComment, setShowComment] = useState([]);
+const useStyles = makeStyles((theme) => ({
+	list: {
+		background: 'white',
+	},
+	wrapper: {
+		position: 'relative',
+	},
+	buttonProgress: {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		marginTop: -12,
+		marginLeft: -12,
+	},
+}));
+
+export default function ShowComments({ userId, lectureId }) {
+	const classes = useStyles();
+	const [comments, setComments] = useState([]);
+	const [comment, setComment] = useState('');
 
 	const [
-		addCommentgraphql,
+		get_comments,
+		{ loading: loadingComments, error: errorComments, data: allComments },
+	] = useLazyQuery(GET_COMMENTS_BY_LECTURE);
+	const [
+		add_comment,
 		{ loading: loadingAddComment, error: errorAddComment, data: singleComment },
 	] = useMutation(ADD_COMMENT);
 
-	const [comment, setComment] = useState('');
+	useEffect(() => {
+		get_comments({ variables: { id: lectureId } });
+	}, [get_comments, lectureId]);
 
-	const { loading: loadingComments, error: errorComments, data: allComments } = useQuery(
-		SHOW_COMMENTS
-	);
- //why this code works, like when we add new comment this component rerenders. How does this happen as we are not changing any local state
 	useEffect(() => {
 		if (allComments && allComments.comments !== 0) {
-			loadComments(allComments.comments);
+			setComments(allComments.comments);
 		}
 	}, [allComments]);
 
 	useEffect(() => {
 		if (singleComment) {
-			setShowComment((oldComments) => [...oldComments, singleComment.insert_comments_one]);
+			setComments((oldComments) => [...oldComments, singleComment.insert_comments_one]);
 		}
 	}, [singleComment]);
 
-	// this function will trigger on save button. We are adding comment in hasura and also making local comment state empty
-	const handleAddComment = () => {
-		addCommentgraphql({
-			variables: { comment: comment, lectureid: lectureId, user_id: userProfile.userId },
+	const handleAddComment = (event) => {
+		event.preventDefault();
+
+		add_comment({
+			variables: { comment, lectureId, userId },
+			update(cache, { data }) {
+				const newCommentFromResponse = data?.insert_comments_one;
+				const existingComments = cache.readQuery({
+					query: GET_COMMENTS_BY_LECTURE,
+					variables: { id: lectureId },
+				});
+
+				if (newCommentFromResponse && existingComments) {
+					cache.writeQuery({
+						query: GET_COMMENTS_BY_LECTURE,
+						variables: { id: lectureId },
+						data: {
+							lectures: [...existingComments?.comments, newCommentFromResponse],
+						},
+					});
+					setComment('');
+				}
+			},
 		});
-		setComment('');
 	};
 
-	const loadComments = (data) => {
-		setShowComment(data);
-	};
-
-	const handleResetComment = () => {
-		setComment('');
-	};
-
-	const handleNewComment = (event) => {
+	const handleCommentChange = (event) => {
 		setComment(event.target.value);
 	};
 
-	// if (dataagainComments) {
-	//   console.log("after adding comment", dataagainComments)
-	//   console.log("show comment",showComment)
-
-	//   let updatedCommentsAfterAddComment = showComment;
-	//   console.log("gt",dataagainComments.insert_comments_one)
-	//   updatedCommentsAfterAddComment.push(dataagainComments.insert_comments_one);
-	//   console.log("updated comment",updatedCommentsAfterAddComment)
-	//   setShowComment(updatedCommentsAfterAddComment)
-	// }
-
 	if (errorAddComment) return `Error is ${errorAddComment.message}`;
 	return (
-		<Box my={2} mx={{ xs: 2, sm: 4, md: 5 }}>
-			<Typography variant="h4">Comments </Typography>
-			{showComment.map(({ id, comment, created_at }) => (
-				<Box style={{ backgroundColor: 'lightgrey' }} my={1} p={1} key={id}>
-					<Typography variant="body1">{comment}</Typography>
-					<Typography variant="caption">{created_at}</Typography>
-				</Box>
-			))}
-			<Box my={2}>
-				<textarea
-					placeholder="Leave a comment"
-					onChange={handleNewComment}
-					value={comment}
-					name="w3review"
-					rows="5"
-					style={{ width: '100%', fontFamily: 'inherit', padding: '0.5rem' }}
-				/>
-				<Box display="flex" justifyContent="flex-end" my={1}>
-					<Box mx={1}>
-						<Button color="secondary" variant="outlined" onClick={handleResetComment} type="button">
-							Cancel
-						</Button>
+		<>
+			<Box my={2} mx={{ xs: 2, sm: 4, md: 5 }}>
+				<Typography variant="h4">Comments </Typography>
+				{!loadingComments && allComments ? (
+					<Box my={2}>
+						{comments.length !== 0 && (
+							<List className={classes.list}>
+								{comments.map(
+									({ comment, created_at, id, lectureId, parentId, userId, children_comments }) => (
+										<Fragment key={id}>
+											<ListItem alignItems="flex-start">
+												<ListItemText>
+													<Box m={0} px={0} py={0}>
+														<Typography variant="body1">{comment}</Typography>
+														<Box mt={2}>
+															<Typography variant="caption" color="textSecondary">
+																{formatDistance(new Date(created_at), new Date(), {
+																	addSuffix: true,
+																})}
+															</Typography>
+														</Box>
+													</Box>
+												</ListItemText>
+												<ListItemSecondaryAction>
+													<IconButton edge="end" aria-label="Go to replies">
+														<Badge
+															badgeContent={String(children_comments.length)}
+															color={children_comments.length ? 'primary' : 'textSecondary'}
+															showZero
+														>
+															<ForumIcon />
+														</Badge>
+													</IconButton>
+												</ListItemSecondaryAction>
+											</ListItem>
+											<Divider component="li" />
+										</Fragment>
+									)
+								)}
+							</List>
+						)}
 					</Box>
-					<Box mx={1}>
-						<Button color="primary" onClick={handleAddComment} variant="contained" type="button">
-							Comment
-						</Button>
-					</Box>
+				) : null}
+				<Box my={2}>
+					<form name="comment-form">
+						<textarea
+							placeholder="Leave a comment"
+							onChange={handleCommentChange}
+							value={comment}
+							name="comment"
+							rows="5"
+							style={{ width: 'calc(100% - 1rem)', padding: '0.5rem' }}
+						/>
+						<Box display="flex" justifyContent="flex-end" my={1}>
+							<Box>
+								<div className={classes.wrapper}>
+									<Button
+										color="primary"
+										onClick={handleAddComment}
+										variant="contained"
+										type="button"
+										disabled={!comment || loadingAddComment}
+									>
+										Comment
+									</Button>
+									{loadingAddComment && (
+										<CircularProgress size={24} className={classes.buttonProgress} />
+									)}
+								</div>
+							</Box>
+						</Box>
+					</form>
 				</Box>
 			</Box>
-		</Box>
+		</>
 	);
 }
