@@ -1,38 +1,35 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory, Link } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
 import {
 	Box,
-	TextField,
-	Typography,
-	Grid,
-	Button,
 	Collapse,
 	CircularProgress,
+	Typography,
+	TextField,
+	Button,
+	Grid,
 } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
-import { makeStyles } from '@material-ui/core/styles';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import gql from 'graphql-tag';
-import { useMutation, useLazyQuery } from '@apollo/client';
-import { authContext } from '../auth/AuthContext';
-import { SIGN_IN } from '../graphqlApi/mutations';
-import { setSession } from '../util/storage';
+import { useMutation } from '@apollo/client';
+import { SIGN_UP_MUTATION, INSERT_USER_MUTATION } from '../../graphqlApi/mutations';
 
 const useStyles = makeStyles((theme) => ({
 	loginLink: {
-		color: theme.palette.secondary.main,
+		color: theme.palette.primary.main,
 		fontWeight: 600,
 		textDecoration: 'none',
 		margin: '0 0.5rem',
 	},
 	loginContainer: {
-		display: 'flex',
 		height: '100vh',
 	},
-	loginForm: {
+	signupForm: {
 		display: 'table-cell',
 		verticalAlign: 'middle',
+		width: '325px',
 	},
 	wrapper: {
 		margin: theme.spacing(1),
@@ -48,109 +45,71 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const initialValues = {
+	displayName: '',
 	email: '',
 	password: '',
 };
 
-const CHECK_ROLE_AFTER_SIGNIN = gql`
-	query user($id: String!) {
-		user_by_pk(id: $id) {
-			id
-			role
-		}
-	}
-`;
 const validationSchema = Yup.object().shape({
-	email: Yup.string().email('It should be an email').required('This field is required'),
+	displayName: Yup.string().required('This field is required'),
+	email: Yup.string().email('it should be an email').required('This field is required'),
 	password: Yup.string().required('This field is required'),
 });
 
-function Login(props) {
+function SignupForm({ role }) {
 	const classes = useStyles();
 	const history = useHistory();
-	const { setUserProfile } = useContext(authContext);
 	const [errors, setErrors] = useState('');
-
-	const [login, { loading: loadingLogin, data: dataLogin, error: errorLogin }] = useMutation(
-		SIGN_IN
-	);
 	const [
-		checkRole,
-		{ loading: loadingCheckRole, data: user, error: errorCheckingRole },
-	] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN, {
-		fetchPolicy: 'no-cache',
-	});
+		create_user,
+		{ loading: loadingNewUser, data: dataNewUser, error: errorNewUser },
+	] = useMutation(SIGN_UP_MUTATION);
+	const [insert_user, { loading: loadingInsertUser }] = useMutation(INSERT_USER_MUTATION);
 
 	useEffect(() => {
-		if (user) {
-			initUserProfile();
+		if (dataNewUser) {
+			handleInsertUser();
 		}
-		if (errorCheckingRole) {
-			handleError(errorCheckingRole);
+		if (errorNewUser) {
+			handleError(errorNewUser);
 		}
-	}, [user, errorCheckingRole]);
-
-	useEffect(() => {
-		if (dataLogin) {
-			handleSuccessLogin();
-		}
-		if (errorLogin) {
-			handleError(errorLogin);
-		}
-	}, [dataLogin, errorLogin]);
+	}, [dataNewUser, errorNewUser]);
 
 	const handleError = (errors) => {
 		setErrors(errors.message);
 		setTimeout(() => setErrors(''), 5000);
 	};
 
-	const handleSuccessLogin = () => {
-		const { id, accessToken } = dataLogin.login;
-		setSession('token', accessToken, 'single');
-		checkRole({ variables: { id } });
+	const handleInsertUser = async () => {
+		const { id } = dataNewUser.create_user;
+		insert_user({
+			variables: { id, role },
+		})
+			.then(() => {
+				history.replace('/login');
+			})
+			.catch((error) => {
+				console.error(error);
+			});
 	};
 
-	const handleRedirectByRole = () => {
-		const { role } = user.user_by_pk;
-		if (role === 'admin' || role === 'instructor') {
-			history.replace('/instructordashboard');
-		}
-		if (role === 'student') {
-			history.replace('/studentdashboard');
-		}
-	};
-	const initUserProfile = () => {
-		const { id, displayName, email, accessToken, refreshToken } = dataLogin.login;
-		const { role } = user.user_by_pk;
-
-		const userProfile = {
-			userId: id,
-			role: role,
-			displayName,
-			email,
-			isUserLogged: true,
-			accessToken,
-			refreshToken,
-		};
-
-		setUserProfile(userProfile);
-		setSession('user', userProfile);
-		handleRedirectByRole();
-	};
-	const handleSignin = (values) => {
-		login({ variables: values });
+	const signupHandler = async (values) => {
+		await create_user({
+			variables: values,
+		});
 	};
 
 	return (
 		<div className="amply-wrapper">
 			<Grid
 				container
+				spacing={0}
 				direction="column"
 				alignItems="center"
 				justify="center"
 				className={classes.loginContainer}
 			>
-				<div className={classes.loginForm}>
+				<div className={classes.signupForm}>
 					<Collapse in={Boolean(errors)}>
 						<Box my={2}>
 							{errors && (
@@ -161,31 +120,42 @@ function Login(props) {
 							)}
 						</Box>
 					</Collapse>
-					<Box>
-						<Typography variant="h6">Sign in</Typography>
-					</Box>
+					<Typography variant="h6">Create account</Typography>
 
 					<Formik
 						initialValues={initialValues}
-						onSubmit={handleSignin}
 						validationSchema={validationSchema}
+						onSubmit={signupHandler}
 					>
 						{({
 							values,
 							touched,
 							errors,
+							isValid,
 							handleChange,
 							handleBlur,
 							handleSubmit,
 							isInitialValid,
-							submitCount,
-							isSubmitting,
 						}) => (
 							<form onSubmit={handleSubmit}>
 								<Box>
 									<TextField
+										label="Display Name"
+										name="displayName"
+										value={values.displayName}
+										onChange={handleChange}
+										onBlur={handleBlur}
+										error={touched.displayName && errors.displayName}
+										helperText={touched.displayName && errors.displayName}
+										margin="normal"
+										fullWidth
+									/>
+								</Box>
+								<Box>
+									<TextField
 										label="Email"
 										name="email"
+										autoComplete="username"
 										value={values.email}
 										onChange={handleChange}
 										onBlur={handleBlur}
@@ -198,8 +168,9 @@ function Login(props) {
 								<Box>
 									<TextField
 										type="password"
-										label="Password"
+										label="password"
 										name="password"
+										autoComplete="new-password"
 										value={values.password}
 										onChange={handleChange}
 										onBlur={handleBlur}
@@ -209,26 +180,26 @@ function Login(props) {
 										fullWidth
 									/>
 								</Box>
-								<Box mt={2} mb={4} align="center">
+								<Box display="flex" justifyContent="space-around" mt={2} mb={4}>
 									<div className={classes.wrapper}>
 										<Button
 											variant="contained"
 											color="primary"
 											type="submit"
-											disabled={loadingLogin || loadingCheckRole}
+											disabled={loadingNewUser || loadingInsertUser}
 										>
-											Sign in
+											Sign up
 										</Button>
-										{(loadingLogin || loadingCheckRole) && (
+										{(loadingNewUser || loadingInsertUser) && (
 											<CircularProgress size={24} className={classes.buttonProgress} />
 										)}
 									</div>
 								</Box>
 								<Box>
 									<Typography variant="body2" color="textSecondary">
-										Don't have an account yet?
-										<Link to="/register" className={classes.loginLink}>
-											Sign up
+										Already have an account?
+										<Link to="/login" className={classes.loginLink}>
+											Login
 										</Link>
 									</Typography>
 								</Box>
@@ -241,4 +212,4 @@ function Login(props) {
 	);
 }
 
-export default Login;
+export default SignupForm;

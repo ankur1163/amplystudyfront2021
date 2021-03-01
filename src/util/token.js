@@ -1,3 +1,5 @@
+import { getSession } from './storage';
+
 export const decode = (token) => {
 	const data = token.split('.')[1];
 
@@ -11,4 +13,7 @@ export const decode = (token) => {
 	);
 
 	return JSON.parse(decoded);
+};
+export const getNewToken = () => {
+	// const { userId, refreshToken } = getSession('user');
 };

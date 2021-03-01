@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import ReactPlayer from 'react-player';
-import { Box, CircularProgress, Grid, Typography, Button } from '@material-ui/core';
+import { Box, CircularProgress, Typography, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useMutation } from '@apollo/client';
 import { authContext } from '../../auth/AuthContext';
@@ -98,6 +98,7 @@ function StudentLectureVideo({
 						<Button
 							color="secondary"
 							variant="outlined"
+							disabled={markDoneLoading}
 							onClick={() =>
 								markDonefunction({ variables: { user_id: userProfile.userId, lectureid: id } })
 							}
@@ -122,6 +123,7 @@ function StudentLectureVideo({
 								)
 							}
 							variant="contained"
+							disabled={paymentLoading}
 						>
 							Buy Course
 						</Button>
