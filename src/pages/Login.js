@@ -1,13 +1,30 @@
-import React, { useContext, useEffect,setState } from 'react';
+//commented
+
+//we are importing usecontext to use context which we created in authcontext
+//useeffect hook to mainly use apollo hooks like loading,error
+
+import React, { useContext, useEffect, useState } from 'react';
+//The useHistory hook gives you access to the 
+//history instance that you may use to navigate.
 import { useHistory, Link } from 'react-router-dom';
-import { Box, TextField, Typography, Grid, Button, CircularProgress } from '@material-ui/core';
+import {
+	Box,
+	TextField,
+	Typography,
+	Grid,
+	Button,
+	Collapse,
+	CircularProgress,
+} from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import { makeStyles } from '@material-ui/core/styles';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import gql from 'graphql-tag';
-import { useMutation,useLazyQuery } from '@apollo/client';
+import { useMutation, useLazyQuery } from '@apollo/client';
 import { authContext } from '../auth/AuthContext';
-import { decode } from '../util/token';
+import { SIGN_IN } from '../graphqlApi/mutations';
+import { setSession } from '../util/storage';
 
 const useStyles = makeStyles((theme) => ({
 	loginLink: {
@@ -16,33 +33,41 @@ const useStyles = makeStyles((theme) => ({
 		textDecoration: 'none',
 		margin: '0 0.5rem',
 	},
+	loginContainer: {
+		display: 'flex',
+		height: '100vh',
+	},
+	loginForm: {
+		display: 'table-cell',
+		verticalAlign: 'middle',
+	},
+	wrapper: {
+		margin: theme.spacing(1),
+		position: 'relative',
+	},
+	buttonProgress: {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		marginTop: -12,
+		marginLeft: -12,
+	},
 }));
 
+//we have initiated email password values
 const initialValues = {
 	email: '',
 	password: '',
 };
 
-const SIGNIN_MUTATION = gql`
-	mutation Signin($email: String!, $password: String!) {
-		login(credentials: { email: $email, password: $password }) {
-			accessToken
-			id
-		}
-	}
-`;
 
 const CHECK_ROLE_AFTER_SIGNIN = gql`
-query MyQuery($id: String) {
-	user(where: {id: {_eq: $id}}) {
-	  id
-	  role
+	query user($id: String!) {
+		user_by_pk(id: $id) {
+			id
+			role
+		}
 	}
-  }
-
-
-
-
 `;
 const validationSchema = Yup.object().shape({
 	email: Yup.string().email('It should be an email').required('This field is required'),
@@ -51,66 +76,132 @@ const validationSchema = Yup.object().shape({
 
 function Login(props) {
 	const classes = useStyles();
-	const { setUserProfile } = useContext(authContext);
-	
-	const [login, { loading }] = useMutation(SIGNIN_MUTATION);
-	const [checkrole, { called, loading:loading2, data }] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN);
-
 	const history = useHistory();
+	//const setuserprofile = value.setuserprofile
+	//we want to access setuserprofile method from authcontext
+	//	const [userProfile, setUserProfile] = useState(() => initialState);
 
-	const afterLogin = ({ login }) => {
-		const { name, user_id, email } = decode(login.accessToken);
-		console.log("logged in ")
-		localStorage.setItem('user_token', login.accessToken);
-		localStorage.setItem('userid', user_id);
+	const { setUserProfile } = useContext(authContext);
+	const [errors, setErrors] = useState('');
+	//here we are trying to login 
+	//apollo query to login
+	const [login, { loading: loadingLogin, data: dataLogin, error: errorLogin }] = useMutation(
+		SIGN_IN
+	);
 
-		setUserProfile({
-			isUserLogged: true,
-			userName: name,
-			userId: user_id,
-			userEmail: email,
-		});
-		checkrole({ variables: { id: user_id } });
-		console.log("data is",data)
-		
-		if(data){
-			if(data.user[0].role==="user"){
-				console.log("user is user")
-			}
-			else if (data.user[0].role==="admin"){
-				console.log("its admin")
-			}
-			
-			// run checkrole function given by apollo
-			
+	//apollo query to check role
+	const [
+		checkRole,
+		{ loading: loadingCheckRole, data: user, error: errorCheckingRole },
+	] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN, {
+		fetchPolicy: 'no-cache',
+	}); 
+//if we have data (user) after checking role
+//execute inituserprofile
+	useEffect(() => {
+		if (user) {
+//if user role is there, we basically, set user profile in state
+//then set profile in local storage 
+//then redirect user by role,if role is admin or instructor, he will go to /admindashboard
+//if student, he wil go to studentdashboard
+			initUserProfile();
 		}
-		
-		history.push('/studentdashboard');
+		if (errorCheckingRole) {
+			//we will set state with error and then after 5 second, we replace error message with  ''
+
+			handleError(errorCheckingRole);
+		}
+	}, [user, errorCheckingRole]);
+
+	useEffect(() => {
+		if (dataLogin) {
+			//after we are logged in, we want to save token in local storage
+			//then we do checkrole(..id)  (apollo query)
+			handleSuccessLogin();
+		}
+		if (errorLogin) {
+			handleError(errorLogin);
+		}
+	}, [dataLogin, errorLogin]);
+//we are changing state and putting error message in it
+//
+	const handleError = (errors) => {
+		setErrors(errors.message);
+		setTimeout(() => setErrors(''), 5000);
 	};
-	const signinHandler = (values) => {
-		console.log('values for sign in', values);
-		login({ variables: values }).then(({ errors, data }) => {
-			console.log('login auth ', data);
-			return errors ? console.error(errors) : afterLogin(data);
-		});
+//we are setting token in local storage - setsession
+//we are making apollo query to check role
+
+	const handleSuccessLogin = () => {
+		const { id, accessToken } = dataLogin.login;
+		setSession('token', accessToken, 'single');
+		checkRole({ variables: { id } });
 	};
+
+	//we are redirecting according to role
+	const handleRedirectByRole = () => {
+		const { role } = user.user_by_pk;
+		if (role === 'admin' || role === 'instructor') {
+			history.replace('/instructordashboard');
+		}
+		if (role === 'student') {
+			history.replace('/studentdashboard');
+		}
+	};
+
+
+	const initUserProfile = () => {
+		const { id, displayName, email, accessToken, refreshToken } = dataLogin.login;
+		const { role } = user.user_by_pk;
+
+		const userProfile = {
+			userId: id,
+			role: role,
+			displayName,
+			email,
+			isUserLogged: true,
+			accessToken,
+			refreshToken,
+		};
+
+		setUserProfile(userProfile);
+		setSession('user', userProfile);
+		handleRedirectByRole();
+	};
+
+	//after form is submitteed, this function gets executed which makes login apollo query
+
+	const handleSignin = (values) => {
+		login({ variables: values });
+	};
+
 	return (
-		<Grid
-			container
-			spacing={0}
-			direction="column"
-			alignItems="center"
-			justify="center"
-			style={{ height: 'calc(100vh - 240px)' }}
-		>
-			{loading && <CircularProgress color="primary" />}
-			{!loading && (
-				<>
-					<Typography variant="h6">Sign in</Typography>
+		<div className="amply-wrapper">
+			<Grid
+				container
+				direction="column"
+				alignItems="center"
+				justify="center"
+				className={classes.loginContainer}
+			>
+				<div className={classes.loginForm}>
+					<Collapse in={Boolean(errors)}>
+						<Box my={2}>
+							{errors && (
+								<Alert variant="filled" severity="error">
+									<AlertTitle>Error</AlertTitle>
+									{errors}
+								</Alert>
+							)}
+						</Box>
+					</Collapse>
+					<Box>
+						<Typography variant="h6">Sign in</Typography>
+					</Box>
 
 					<Formik
 						initialValues={initialValues}
-						onSubmit={signinHandler}
+						onSubmit={handleSignin}
 						validationSchema={validationSchema}
 					>
 						{({
@@ -153,9 +244,19 @@ function Login(props) {
 									/>
 								</Box>
 								<Box mt={2} mb={4} align="center">
-									<Button variant="contained" color="secondary" type="submit">
-										Sign in to Amply Study
-									</Button>
+									<div className={classes.wrapper}>
+										<Button
+											variant="contained"
+											color="primary"
+											type="submit"
+											disabled={loadingLogin || loadingCheckRole}
+										>
+											Sign in
+										</Button>
+										{(loadingLogin || loadingCheckRole) && (
+											<CircularProgress size={24} className={classes.buttonProgress} />
+										)}
+									</div>
 								</Box>
 								<Box>
 									<Typography variant="body2" color="textSecondary">
@@ -168,9 +269,9 @@ function Login(props) {
 							</form>
 						)}
 					</Formik>
-				</>
-			)}
-		</Grid>
+				</div>
+			</Grid>
+		</div>
 	);
 }
 

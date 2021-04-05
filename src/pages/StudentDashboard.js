@@ -1,33 +1,18 @@
-import React, { useEffect, useState, setState } from 'react';
-import PropTypes from 'prop-types';
-import {
-	AppBar,
-	CssBaseline,
-	Divider,
-	Hidden,
-	IconButton,
-	List,
-	ListItem,
-	ListItemText,
-	Toolbar,
-	Typography,
-} from '@material-ui/core';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
-import MenuIcon from '@material-ui/icons/Menu';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+//commented
+import React, { useContext, useEffect, useState } from 'react';
+import { Box } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import StudentLectureVideo from '../components/ui/StudentLectureVideo';
 import ShowComments from '../components/ui/ShowComments';
 import Drawer from '../components/Drawer/Drawer';
 import { useQuery } from '@apollo/client';
-import { GET_LECTURES } from '../graphqlApi/querys';
+import { authContext } from '../auth/AuthContext';
+import { GET_LECTURES } from '../graphqlApi/queries';
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
-	root: {
-		display: 'flex',
-	},
+	//here, we want to set width of appbar, 100% - width of drawer
 	appBar: {
 		[theme.breakpoints.up('sm')]: {
 			width: `calc(100% - ${drawerWidth}px)`,
@@ -52,60 +37,52 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function StudentDashboard(props) {
-	const initialLecture = [
-		{
-			title: 'No video is selected',
-			videoUrl: '',
-			description: '',
-			id: '',
-			paid: false,
-			snumber: 1,
-			type: 'lecture',
-			lectureTitle: '',
-			text: '',
-			doneStatus: false,
-		},
-	];
-
 	const classes = useStyles();
+	const { userProfile } = useContext(authContext);
 	const [mobileOpen, setMobileOpen] = useState(false);
-	const { loading, error, data = {} } = useQuery(GET_LECTURES);
-	const { lectures = [] } = data;
-	const [currentLectureDetails, setCurrentLectureDetails] = useState(initialLecture);
+	const { loading: loadingLectures, error: errorLectures, data: dataLectures = {} } = useQuery(
+		GET_LECTURES
+	);
+	const { lectures = [] } = dataLectures;
+	const [currentLectureDetails, setCurrentLectureDetails] = useState([]);
 
+	//here we are checking lectures have some lectures
+	//then we setcurrentlecturedetails as first lecture
 	useEffect(() => {
 		if (lectures.length !== 0) {
 			setCurrentLectureDetails(lectures[0]);
 		}
 	}, [lectures]);
 
-	if (loading) return 'loading...';
-
-	if (error) return `Error is ${error.message}`;
-
+	//this is just to toggle drawer open or close
+	//we are changing state from true/false or false/true
 	const handleToggleDrawer = () => {
 		setMobileOpen(!mobileOpen);
 	};
+	//when user click on lecture, we find clicked lecture and 
+	//setcurrentlecturedetails
 	const handleLectureClick = (id) => {
 		const lectureSelected = lectures.find((item) => item.id === id);
 		setCurrentLectureDetails(lectureSelected);
 	};
 
+	if (loadingLectures) return 'loading...';
+
+	if (errorLectures) return `Error is  errorlectures here ${errorLectures.message}`;
 	return (
-		<main className={classes.root}>
-			<CssBaseline />
-			<nav className={classes.drawer} aria-label="mailbox folders">
+		<>
+			<nav className={classes.drawer}>
 				<Drawer
 					lectures={lectures}
 					onToggleDrawer={handleToggleDrawer}
 					onLectureClick={handleLectureClick}
 				/>
 			</nav>
-			<div className="amply-wrapper">
+			<Box mb={10} className="amply-wrapper view-wrapper">
 				<StudentLectureVideo {...currentLectureDetails} />
-				<ShowComments lectureId={currentLectureDetails.id} />
-			</div>
-		</main>
+				<ShowComments userId={userProfile.userId} lectureId={currentLectureDetails.id} />
+			</Box>
+		</>
 	);
 }
 
