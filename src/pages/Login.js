@@ -1,4 +1,11 @@
+//commented
+
+//we are importing usecontext to use context which we created in authcontext
+//useeffect hook to mainly use apollo hooks like loading,error
+
 import React, { useContext, useEffect, useState } from 'react';
+//The useHistory hook gives you access to the 
+//history instance that you may use to navigate.
 import { useHistory, Link } from 'react-router-dom';
 import {
 	Box,
@@ -47,10 +54,12 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+//we have initiated email password values
 const initialValues = {
 	email: '',
 	password: '',
 };
+
 
 const CHECK_ROLE_AFTER_SIGNIN = gql`
 	query user($id: String!) {
@@ -68,41 +77,60 @@ const validationSchema = Yup.object().shape({
 function Login(props) {
 	const classes = useStyles();
 	const history = useHistory();
+	//const setuserprofile = value.setuserprofile
+	//we want to access setuserprofile method from authcontext
+	//	const [userProfile, setUserProfile] = useState(() => initialState);
+
 	const { setUserProfile } = useContext(authContext);
 	const [errors, setErrors] = useState('');
-
+	//here we are trying to login 
+	//apollo query to login
 	const [login, { loading: loadingLogin, data: dataLogin, error: errorLogin }] = useMutation(
 		SIGN_IN
 	);
+
+	//apollo query to check role
 	const [
 		checkRole,
 		{ loading: loadingCheckRole, data: user, error: errorCheckingRole },
 	] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN, {
 		fetchPolicy: 'no-cache',
-	});
-
+	}); 
+//if we have data (user) after checking role
+//execute inituserprofile
 	useEffect(() => {
 		if (user) {
+//if user role is there, we basically, set user profile in state
+//then set profile in local storage 
+//then redirect user by role,if role is admin or instructor, he will go to /admindashboard
+//if student, he wil go to studentdashboard
 			initUserProfile();
 		}
 		if (errorCheckingRole) {
+			//we will set state with error and then after 5 second, we replace error message with  ''
+
 			handleError(errorCheckingRole);
 		}
 	}, [user, errorCheckingRole]);
 
 	useEffect(() => {
 		if (dataLogin) {
+			//after we are logged in, we want to save token in local storage
+			//then we do checkrole(..id)  (apollo query)
 			handleSuccessLogin();
 		}
 		if (errorLogin) {
 			handleError(errorLogin);
 		}
 	}, [dataLogin, errorLogin]);
-
+//we are changing state and putting error message in it
+//
 	const handleError = (errors) => {
 		setErrors(errors.message);
 		setTimeout(() => setErrors(''), 5000);
 	};
+//we are setting token in local storage - setsession
+//we are making apollo query to check role
 
 	const handleSuccessLogin = () => {
 		const { id, accessToken } = dataLogin.login;
@@ -110,6 +138,7 @@ function Login(props) {
 		checkRole({ variables: { id } });
 	};
 
+	//we are redirecting according to role
 	const handleRedirectByRole = () => {
 		const { role } = user.user_by_pk;
 		if (role === 'admin' || role === 'instructor') {
@@ -119,6 +148,8 @@ function Login(props) {
 			history.replace('/studentdashboard');
 		}
 	};
+
+
 	const initUserProfile = () => {
 		const { id, displayName, email, accessToken, refreshToken } = dataLogin.login;
 		const { role } = user.user_by_pk;
@@ -137,6 +168,9 @@ function Login(props) {
 		setSession('user', userProfile);
 		handleRedirectByRole();
 	};
+
+	//after form is submitteed, this function gets executed which makes login apollo query
+
 	const handleSignin = (values) => {
 		login({ variables: values });
 	};

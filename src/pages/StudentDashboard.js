@@ -1,3 +1,4 @@
+//commented
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -11,6 +12,7 @@ import { GET_LECTURES } from '../graphqlApi/queries';
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
+	//here, we want to set width of appbar, 100% - width of drawer
 	appBar: {
 		[theme.breakpoints.up('sm')]: {
 			width: `calc(100% - ${drawerWidth}px)`,
@@ -44,15 +46,21 @@ function StudentDashboard(props) {
 	const { lectures = [] } = dataLectures;
 	const [currentLectureDetails, setCurrentLectureDetails] = useState([]);
 
+	//here we are checking lectures have some lectures
+	//then we setcurrentlecturedetails as first lecture
 	useEffect(() => {
 		if (lectures.length !== 0) {
 			setCurrentLectureDetails(lectures[0]);
 		}
 	}, [lectures]);
 
+	//this is just to toggle drawer open or close
+	//we are changing state from true/false or false/true
 	const handleToggleDrawer = () => {
 		setMobileOpen(!mobileOpen);
 	};
+	//when user click on lecture, we find clicked lecture and 
+	//setcurrentlecturedetails
 	const handleLectureClick = (id) => {
 		const lectureSelected = lectures.find((item) => item.id === id);
 		setCurrentLectureDetails(lectureSelected);
@@ -60,7 +68,7 @@ function StudentDashboard(props) {
 
 	if (loadingLectures) return 'loading...';
 
-	if (errorLectures) return `Error is ${errorLectures.message}`;
+	if (errorLectures) return `Error is  errorlectures here ${errorLectures.message}`;
 	return (
 		<>
 			<nav className={classes.drawer}>

@@ -45,15 +45,24 @@ const apolloErrors = ({ graphQLErrors, networkError, operation, forward, respons
 	}
 };
 
+//operation is the current query or mutation
+//we use forward to continue with the operation (query or mutation), after to do something like check headers or another operation
+
 const authMiddleware = new ApolloLink((operation, forward) => {
+	//we are using getsession function and providing it "token" 
+	//and "single", so we get token back"
 	const accessToken = getSession('token', 'single');
+	//this means we will get role in array, if we dont get it, set default role as student
 	const { role = 'student' } = getSession('user');
 	let updatedHeaders = {};
 
 	if (accessToken) {
 		updatedHeaders.authorization = `Bearer ${accessToken}`;
+		//we are using this syntax, because - exists. 
 		updatedHeaders['x-hasura-role'] = role;
 	}
+
+	//here we are passing headers empty object if no headers parameter is passed
 
 	operation.setContext(({ headers = {} }) => ({
 		headers: {
@@ -64,6 +73,9 @@ const authMiddleware = new ApolloLink((operation, forward) => {
 
 	return forward(operation);
 });
+
+// The Apollo Link library helps you customize the flow of data between Apollo Client
+//it has from method which contains array with item like onError, authMiddleware and hasura uri 
 
 export default ApolloLink.from([
 	onError(apolloErrors),

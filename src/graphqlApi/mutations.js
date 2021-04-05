@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 
+//we are getting refresh token, but we havnt done anything with it
 export const SIGN_IN = gql`
 	mutation SignIn($email: String!, $password: String!) {
 		login(credentials: { email: $email, password: $password }) {
