@@ -4,7 +4,7 @@ import {
 	ListItem,
 	ListItemText,
 	Divider,
-	Drawer as MUIDrawer,
+	Drawer as MUIDrawer, 
 	Hidden,
 } from '@material-ui/core';
 import { makeStyles, useTheme } from '@material-ui/core/styles';

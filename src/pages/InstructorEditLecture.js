@@ -161,6 +161,16 @@ export default function InstructorEditLecture(props) {
 
 
 	//this is to update lecture 
+	//no need to include fetch policy 
+	//What both the error message and docs are really trying to say is that 
+	//fetchPolicy's aren't needed when using ApolloClient.mutate, since mutations 
+	//work in one main way in Apollo Client. The remote mutation is fired first, 
+	//then the result is updated in the cache. This behaviour is essentially the 
+	//same as the network-only fetchPolicy, which is what the docs are trying to 
+	//allude to. So if you don't set a fetchPolicy with your client.mutate call, 
+	//you're doing the equivalent of a network-only client.query call, in that
+	// you're talking to the network first, then updating the cache second.
+
 	const [edit_lecture, { loading: loadingEditLecture }] = useMutation(UPDATE_LECTURE);
 
 	//loading all lectures from database
@@ -290,7 +300,7 @@ export default function InstructorEditLecture(props) {
 		const { userId } = userProfile;
 		edit_lecture({
 			variables: { ...values, snumber: parseInt(values.snumber), userId, id: lectureIdRef.current },
-			update(cache, { data }) {
+			/* update(cache, { data }) {
 				const [editLectureFromResponse] = data?.update_lectures?.returning;
 				//reads from cache
 				const allLectures = cache.readQuery({
@@ -306,11 +316,12 @@ export default function InstructorEditLecture(props) {
 					});
 					handleToggleDrawer();
 				}
-			},
+			}, */
 		});
 	};
 
-	//
+	// this function run when we press confirm on dialog box
+	//here we are deleting the lecture first and then updating the cache
 	const handleConfirmDeleteLecture = () => {
 		delete_lecture({
 			variables: {
@@ -335,6 +346,9 @@ export default function InstructorEditLecture(props) {
 			},
 		});
 	};
+
+	//here when user press delete button a dialog comes, when we press yes, then 
+	//real delete function runs which is handleConfirmDeleteLecture
 	const handleDeleteLecture = (lectureId) => {
 		lectureIdRef.current = lectureId;
 		lectureSelectedRef.current = lectures.find((lecture) => lecture.id === lectureId);
