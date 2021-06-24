@@ -5,7 +5,7 @@ import { getSession, removeSession } from '../util/storage';
 
 //we are creating context and initiializing it with null value.
 //this is constant and createcontext method returns object with provider,consumer and optional displayname
-//which we can later call and use 
+//which we can later call and use
 export const authContext = createContext(null);
 
 export function AuthProvider(props) {
@@ -34,11 +34,8 @@ export function AuthProvider(props) {
 	const existToken = getSession('token', 'single');
 
 	useEffect(() => {
-		//if isuserloggedin is false or not present or existoken is false
-		//we send user to homepage
-		if (!existSessionActive.isUserLogged || !existToken) {
-			history.replace('/');
-		} else {
+		// TODO if isuserloggedin is false or not present or existoken is false we send user to homepage
+		if (existSessionActive.isUserLogged || existToken) {
 			//otherwise if both are true, we set user profile in local state
 			updateUserProfile(existSessionActive);
 		}
@@ -56,12 +53,10 @@ export function AuthProvider(props) {
 		history.replace('/');
 	};
 
-	//when you use provider, you are exposing data 
+	//when you use provider, you are exposing data
 	//authcontext returns an object, i dont know how we can use it as react component
- 
 
 	return (
-	
 		<authContext.Provider
 			value={{
 				userProfile,

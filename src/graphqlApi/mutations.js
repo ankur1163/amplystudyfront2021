@@ -21,6 +21,7 @@ export const SIGN_UP_MUTATION = gql`
 		}
 	}
 `;
+
 export const INSERT_USER_MUTATION = gql`
 	mutation InsertUser($id: String!, $role: String!) {
 		insert_user_one(object: { id: $id, role: $role }) {

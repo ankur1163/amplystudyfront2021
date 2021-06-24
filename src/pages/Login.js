@@ -4,7 +4,7 @@
 //useeffect hook to mainly use apollo hooks like loading,error
 
 import React, { useContext, useEffect, useState } from 'react';
-//The useHistory hook gives you access to the 
+//The useHistory hook gives you access to the
 //history instance that you may use to navigate.
 import { useHistory, Link } from 'react-router-dom';
 import {
@@ -52,6 +52,10 @@ const useStyles = makeStyles((theme) => ({
 		marginTop: -12,
 		marginLeft: -12,
 	},
+	ressetPassword: {
+		fontSize: '0.875rem',
+		color: 'currentColor',
+	},
 }));
 
 //we have initiated email password values
@@ -59,7 +63,6 @@ const initialValues = {
 	email: '',
 	password: '',
 };
-
 
 const CHECK_ROLE_AFTER_SIGNIN = gql`
 	query user($id: String!) {
@@ -83,7 +86,7 @@ function Login(props) {
 
 	const { setUserProfile } = useContext(authContext);
 	const [errors, setErrors] = useState('');
-	//here we are trying to login 
+	//here we are trying to login
 	//apollo query to login
 	const [login, { loading: loadingLogin, data: dataLogin, error: errorLogin }] = useMutation(
 		SIGN_IN
@@ -95,15 +98,15 @@ function Login(props) {
 		{ loading: loadingCheckRole, data: user, error: errorCheckingRole },
 	] = useLazyQuery(CHECK_ROLE_AFTER_SIGNIN, {
 		fetchPolicy: 'no-cache',
-	}); 
-//if we have data (user) after checking role
-//execute inituserprofile
+	});
+	//if we have data (user) after checking role
+	//execute inituserprofile
 	useEffect(() => {
 		if (user) {
-//if user role is there, we basically, set user profile in state
-//then set profile in local storage 
-//then redirect user by role,if role is admin or instructor, he will go to /admindashboard
-//if student, he wil go to studentdashboard
+			//if user role is there, we basically, set user profile in state
+			//then set profile in local storage
+			//then redirect user by role,if role is admin or instructor, he will go to /admindashboard
+			//if student, he wil go to studentdashboard
 			initUserProfile();
 		}
 		if (errorCheckingRole) {
@@ -123,14 +126,14 @@ function Login(props) {
 			handleError(errorLogin);
 		}
 	}, [dataLogin, errorLogin]);
-//we are changing state and putting error message in it
-//
+	//we are changing state and putting error message in it
+	//
 	const handleError = (errors) => {
 		setErrors(errors.message);
 		setTimeout(() => setErrors(''), 5000);
 	};
-//we are setting token in local storage - setsession
-//we are making apollo query to check role
+	//we are setting token in local storage - setsession
+	//we are making apollo query to check role
 
 	const handleSuccessLogin = () => {
 		const { id, accessToken } = dataLogin.login;
@@ -148,7 +151,6 @@ function Login(props) {
 			history.replace('/studentdashboard');
 		}
 	};
-
 
 	const initUserProfile = () => {
 		const { id, displayName, email, accessToken, refreshToken } = dataLogin.login;
@@ -242,8 +244,13 @@ function Login(props) {
 										margin="normal"
 										fullWidth
 									/>
+									<Box align="end" color="secondary.main">
+										<Link to="/forgotpassword" className={classes.ressetPassword}>
+											Forgot password?
+										</Link>
+									</Box>
 								</Box>
-								<Box mt={2} mb={4} align="center">
+								<Box my={4} align="center">
 									<div className={classes.wrapper}>
 										<Button
 											variant="contained"

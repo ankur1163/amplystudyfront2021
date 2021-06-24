@@ -5,6 +5,7 @@ import theme from './components/ui/Theme';
 import Header from './components/Header/Header';
 import Homepage from './pages/Homepage';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import RegisterStudent from './pages/RegisterStudent';
 import RegisterInstructor from './pages/RegisterInstructor';
 import { AuthProvider } from './auth/AuthContext';
@@ -40,6 +41,7 @@ function App() {
 						<Switch>
 							<Route exact path="/" component={Homepage} />
 							<Route path="/login" component={Login} />
+							<Route path="/forgotpassword" component={ForgotPassword} />
 							<Route
 								path="/register/student"
 								render={({ match, history }) => <RegisterStudent {...match} {...history} />}
@@ -49,7 +51,6 @@ function App() {
 								render={({ match, history }) => <RegisterInstructor {...match} {...history} />}
 							/>
 							<PrivateRoute path="/:rolePage" />
-							<Route path="*" component={Homepage} />
 						</Switch>
 					</ApolloProvider>
 				</AuthProvider>
