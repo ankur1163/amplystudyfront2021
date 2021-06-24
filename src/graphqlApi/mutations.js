@@ -21,6 +21,21 @@ export const SIGN_UP_MUTATION = gql`
 		}
 	}
 `;
+
+export const FORGOT_PASSWORD = gql`
+mutation forgotpassword($id:String!) {
+	update_user(where: {id: {_eq: $id}}, _set: {forgetpasswordused: true}) {
+	  affected_rows
+	  returning {
+		forgetpasswordused
+	  }
+	}
+  }
+  
+
+
+
+`;
 export const INSERT_USER_MUTATION = gql`
 	mutation InsertUser($id: String!, $role: String!) {
 		insert_user_one(object: { id: $id, role: $role }) {
