@@ -57,6 +57,7 @@ function ForgotPassword() {
 	const [emailSent, seEmailSent] = useState(false);
 
 	const handleSendLink = (values) => {
+		
 		setSendingEmail(true);
 		const config = {
 			url: envConfig.REDIRECT_RESET_PASSWORD,
