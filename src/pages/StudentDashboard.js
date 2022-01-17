@@ -82,7 +82,7 @@ function StudentDashboard(props) {
 			<Box mb={10} className="amply-wrapper view-wrapper">
 				<StudentLectureVideo {...currentLectureDetails} />
 				<ShowComments userId={userProfile.userId} lectureId={currentLectureDetails.id} />
-				<List Questions />
+				<ListQuestions />
 			</Box>
 		</>
 	);
