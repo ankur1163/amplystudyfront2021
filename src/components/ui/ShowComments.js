@@ -22,6 +22,8 @@ import { ADD_COMMENT } from '../../graphqlApi/mutations';
 const useStyles = makeStyles((theme) => ({
 	list: {
 		background: 'white',
+		 
+		borderRadius:'50px',
 	},
 	wrapper: {
 		position: 'relative',

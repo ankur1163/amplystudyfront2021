@@ -8,6 +8,7 @@ import Drawer from '../components/Drawer/Drawer';
 import { useQuery } from '@apollo/client';
 import { authContext } from '../auth/AuthContext';
 import { GET_LECTURES } from '../graphqlApi/queries';
+import ListQuestions from '../components/ui/ListQuestions';
 
 const drawerWidth = 240;
 
@@ -81,6 +82,7 @@ function StudentDashboard(props) {
 			<Box mb={10} className="amply-wrapper view-wrapper">
 				<StudentLectureVideo {...currentLectureDetails} />
 				<ShowComments userId={userProfile.userId} lectureId={currentLectureDetails.id} />
+				<List Questions />
 			</Box>
 		</>
 	);
